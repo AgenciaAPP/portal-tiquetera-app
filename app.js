@@ -280,8 +280,8 @@ function badgeEstado(estado) {
 // ==========================================
 function renderDashboardEquipo() {
     const total      = historicoPermisosEquipo.length;
-    const aprobados  = historicoPermisosEquipo.filter(r => (r.Estado||'').toLowerCase() === 'aprobado').length;
-    const rechazados = historicoPermisosEquipo.filter(r => (r.Estado||'').toLowerCase() === 'rechazado').length;
+    const aprobados  = historicoPermisosEquipo.filter(r => ((r.Estado?.Value || r.Estado || '')).toLowerCase() === 'aprobado').length;
+    const rechazados = historicoPermisosEquipo.filter(r => ((r.Estado?.Value || r.Estado || '')).toLowerCase() === 'rechazado').length;
     const pendientes = total - aprobados - rechazados;
 
     document.getElementById('kpiTotalEquipo').innerText          = listaSubordinados.length;
@@ -318,11 +318,11 @@ function renderDashboardEquipo() {
                     <span class="block truncate" title="${reg.PermisoSolicitado || ''}">${reg.PermisoSolicitado || '—'}</span>
                 </td>
                 <td class="py-3.5 px-5 text-xs text-slate-500 whitespace-nowrap">${formatFecha(reg.Created)}</td>
-                <td class="py-3.5 px-5 text-xs text-slate-500 whitespace-nowrap">${formatFecha(reg.FechaInicio)}</td>
+                <td class="py-3.5 px-5 text-xs text-slate-500 whitespace-nowrap">${formatFecha(reg.FechaSolicitud || reg.FechaInicio)}</td>
                 <td class="py-3.5 px-5 text-xs text-slate-400 max-w-[180px]">
                     <span class="block truncate" title="${reg.Justificacion || ''}">${reg.Justificacion || '—'}</span>
                 </td>
-                <td class="py-3.5 px-5">${badgeEstado(reg.Estado)}</td>`;
+                <td class="py-3.5 px-5">${badgeEstado(reg.Estado?.Value || reg.Estado)}</td>`;
             tbodyHistoricoEquipo.appendChild(tr);
         });
 }
@@ -332,8 +332,8 @@ function renderDashboardEquipo() {
 // ==========================================
 function renderDashboardTalentoHumano() {
     const total      = historicoPermisosEquipo.length;
-    const aprobados  = historicoPermisosEquipo.filter(r => (r.Estado||'').toLowerCase() === 'aprobado').length;
-    const rechazados = historicoPermisosEquipo.filter(r => (r.Estado||'').toLowerCase() === 'rechazado').length;
+    const aprobados  = historicoPermisosEquipo.filter(r => ((r.Estado?.Value || r.Estado || '')).toLowerCase() === 'aprobado').length;
+    const rechazados = historicoPermisosEquipo.filter(r => ((r.Estado?.Value || r.Estado || '')).toLowerCase() === 'rechazado').length;
     const pendientes = total - aprobados - rechazados;
 
     document.getElementById('kpiThTotalServidores').innerText = listaSubordinados.length;
@@ -374,11 +374,11 @@ function inyectarRegistrosTablaTH(datos) {
                     <span class="block truncate" title="${reg.PermisoSolicitado || ''}">${reg.PermisoSolicitado || '—'}</span>
                 </td>
                 <td class="py-3.5 px-5 text-xs text-slate-500 whitespace-nowrap">${formatFecha(reg.Created)}</td>
-                <td class="py-3.5 px-5 text-xs text-slate-500 whitespace-nowrap">${formatFecha(reg.FechaInicio)}</td>
+                <td class="py-3.5 px-5 text-xs text-slate-500 whitespace-nowrap">${formatFecha(reg.FechaSolicitud || reg.FechaInicio)}</td>
                 <td class="py-3.5 px-5 text-xs text-slate-400 max-w-[180px]">
                     <span class="block truncate" title="${reg.Justificacion || ''}">${reg.Justificacion || '—'}</span>
                 </td>
-                <td class="py-3.5 px-5">${badgeEstado(reg.Estado)}</td>`;
+                <td class="py-3.5 px-5">${badgeEstado(reg.Estado?.Value || reg.Estado)}</td>`;
             tbodyHistoricoTH.appendChild(tr);
         });
 }
