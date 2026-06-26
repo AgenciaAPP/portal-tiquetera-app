@@ -48,6 +48,13 @@ const attSoportes             = document.getElementById('attSoportes');
 const btnEnviarSolicitud      = document.getElementById('btnEnviarSolicitud');
 
 // ==========================================
+// HELPERS DE VISIBILIDAD — sin depender de Tailwind
+// ==========================================
+function mostrarEl(el)  { el.style.display = ''; }
+function ocultarEl(el)  { el.style.display = 'none'; }
+function mostrarFlex(el){ el.style.display = 'flex'; }
+
+// ==========================================
 // INICIALIZACIÓN
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -68,10 +75,9 @@ async function procesarAutenticacion() {
     if (!cedula) return;
 
     btnValidarCedula.disabled = true;
-    seccionLogin.classList.add('blur-[1px]');
-    spinnerLoading.classList.remove('hidden');
+    spinnerLoading.style.display = '';
     txtBtnValidar.innerText = "Verificando...";
-    lblErrorLogin.classList.add('hidden');
+    lblErrorLogin.style.display = 'none';
 
     try {
         const respuesta = await fetch(URL_FLOW_CONSULTA, {
@@ -94,24 +100,22 @@ async function procesarAutenticacion() {
             lblCedulaUsuario.innerText = cedula;
             avatarUsuario.innerText    = nombre.charAt(0).toUpperCase();
 
-            headerUsuario.classList.remove('hidden');
-            headerUsuario.classList.add('flex');
-            seccionLogin.classList.add('hidden');
-            seccionContenidoPortal.classList.remove('hidden');
+            mostrarFlex(headerUsuario);
+            ocultarEl(seccionLogin);
+            mostrarEl(seccionContenidoPortal);
 
             evaluarRolYActivarVista();
         } else {
             lblErrorLogin.innerText = "⚠️ Funcionario no habilitado o no encontrado en la base de datos.";
-            lblErrorLogin.classList.remove('hidden');
+            mostrarEl(lblErrorLogin);
         }
     } catch (err) {
         console.error(err);
         lblErrorLogin.innerText = "⚠️ Error de conexión con el servidor institucional de la Agencia APP.";
-        lblErrorLogin.classList.remove('hidden');
+        mostrarEl(lblErrorLogin);
     } finally {
-        spinnerLoading.classList.add('hidden');
+        ocultarEl(spinnerLoading);
         txtBtnValidar.innerText = "Verificar";
-        seccionLogin.classList.remove('blur-[1px]');
         btnValidarCedula.disabled = false;
     }
 }
@@ -124,27 +128,26 @@ async function procesarAutenticacion() {
 // ADMIN_TH   → solo Gestión Talento Humano
 // ==========================================
 function evaluarRolYActivarVista() {
-    // Ocultar TODAS las pestañas primero sin excepción
-    tabTiquetera.classList.add('hidden');
-    tabAdministrativos.classList.add('hidden');
-    tabEquipo.classList.add('hidden');
-    tabAnaliticaTH.classList.add('hidden');
+    // Ocultar TODAS las pestañas con display:none directo
+    ocultarEl(tabTiquetera);
+    ocultarEl(tabAdministrativos);
+    ocultarEl(tabEquipo);
+    ocultarEl(tabAnaliticaTH);
 
-    // Mostrar solo las que corresponden al rol
     if (rolUsuarioActivo === "ADMIN_TH") {
-        tabAnaliticaTH.classList.remove('hidden');
+        mostrarEl(tabAnaliticaTH);
         activarTab('AnaliticaTH');
 
     } else if (rolUsuarioActivo === "JEFE" || rolUsuarioActivo === "SUPER_JEFE") {
-        tabTiquetera.classList.remove('hidden');
-        tabAdministrativos.classList.remove('hidden');
-        tabEquipo.classList.remove('hidden');
+        mostrarEl(tabTiquetera);
+        mostrarEl(tabAdministrativos);
+        mostrarEl(tabEquipo);
         activarTab('Tiquetera');
 
     } else {
         // EMPLEADO
-        tabTiquetera.classList.remove('hidden');
-        tabAdministrativos.classList.remove('hidden');
+        mostrarEl(tabTiquetera);
+        mostrarEl(tabAdministrativos);
         activarTab('Tiquetera');
     }
 }
@@ -169,29 +172,29 @@ function activarTab(tipo) {
         if (t) t.className = TAB_INACTIVO;
     });
 
-    gridBeneficios.classList.add('hidden');
-    seccionDashboardEquipo.classList.add('hidden');
-    seccionAnaliticaTH.classList.add('hidden');
+    ocultarEl(gridBeneficios);
+    ocultarEl(seccionDashboardEquipo);
+    ocultarEl(seccionAnaliticaTH);
 
     switch (tipo) {
         case 'Tiquetera':
             tabTiquetera.className = TAB_ACTIVO;
-            gridBeneficios.classList.remove('hidden');
+            mostrarEl(gridBeneficios);
             renderGrid();
             break;
         case 'Administrativos':
             tabAdministrativos.className = TAB_ACTIVO;
-            gridBeneficios.classList.remove('hidden');
+            mostrarEl(gridBeneficios);
             renderGrid();
             break;
         case 'Equipo':
             tabEquipo.className = TAB_ACTIVO;
-            seccionDashboardEquipo.classList.remove('hidden');
+            mostrarEl(seccionDashboardEquipo);
             renderDashboardEquipo();
             break;
         case 'AnaliticaTH':
             tabAnaliticaTH.className = TAB_ACTIVO;
-            seccionAnaliticaTH.classList.remove('hidden');
+            mostrarEl(seccionAnaliticaTH);
             renderDashboardTalentoHumano();
             break;
     }
@@ -257,7 +260,7 @@ function renderGrid() {
 }
 
 // ==========================================
-// HELPERS
+// HELPERS DE FORMATO
 // ==========================================
 function formatFecha(str) {
     if (!str) return '—';
@@ -432,7 +435,7 @@ async function procesarEnvioSolicitud() {
 
     } catch (err) {
         console.error(err);
-        alert("⚠️ Huedo un problema al radicar tu solicitud. Por favor, reintenta.");
+        alert("⚠️ Hubo un problema al radicar tu solicitud. Por favor, reintenta.");
         btnEnviarSolicitud.disabled  = false;
         btnEnviarSolicitud.innerText = "Enviar Solicitud";
     }
@@ -448,21 +451,19 @@ function abrirPopup(b) {
 
     const wrapSoportes = document.getElementById('wrapperSoportes');
     const lblAlertaSop = document.getElementById('lblAlertaSoporte');
-    if (b.requiereAdjunto) { wrapSoportes.classList.remove('hidden'); lblAlertaSop.classList.remove('hidden'); }
-    else                   { wrapSoportes.classList.add('hidden');    lblAlertaSop.classList.add('hidden'); }
+    if (b.requiereAdjunto) { mostrarEl(wrapSoportes); mostrarEl(lblAlertaSop); }
+    else                   { ocultarEl(wrapSoportes); ocultarEl(lblAlertaSop); }
 
     document.getElementById('formSolicitud').reset();
     document.getElementById('lblFileStatus').innerText = "📄 Selecciona o arrastra tu archivo (PDF, PNG, JPG)";
-    document.getElementById('lblAlertaFecha').classList.add('hidden');
-    document.getElementById('btnEnviarSolicitud').disabled = true;
+    ocultarEl(document.getElementById('lblAlertaFecha'));
+    btnEnviarSolicitud.disabled  = true;
     btnEnviarSolicitud.innerText = "Enviar Solicitud";
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
+    mostrarFlex(modal);
 }
 
 window.cerrarPopup = function() {
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
+    ocultarEl(modal);
     beneficioSeleccionado = null;
 };
 
@@ -477,21 +478,20 @@ function cerrarSesion() {
     txtCedulaIngreso.value  = "";
     if (inputBuscadorTH) inputBuscadorTH.value = "";
 
-    // Ocultar todas las tabs y resetear visualmente
-    tabTiquetera.classList.remove('hidden');
-    tabAdministrativos.classList.remove('hidden');
-    tabEquipo.classList.add('hidden');
-    tabAnaliticaTH.classList.add('hidden');
+    // Reset visual con display directo
+    mostrarEl(tabTiquetera);
+    mostrarEl(tabAdministrativos);
+    ocultarEl(tabEquipo);
+    ocultarEl(tabAnaliticaTH);
     tabTiquetera.className       = TAB_ACTIVO;
     tabAdministrativos.className = TAB_INACTIVO;
 
-    headerUsuario.classList.add('hidden');
-    headerUsuario.classList.remove('flex');
-    seccionContenidoPortal.classList.add('hidden');
-    seccionDashboardEquipo.classList.add('hidden');
-    seccionAnaliticaTH.classList.add('hidden');
-    gridBeneficios.classList.remove('hidden');
-    seccionLogin.classList.remove('hidden');
+    ocultarEl(headerUsuario);
+    ocultarEl(seccionContenidoPortal);
+    ocultarEl(seccionDashboardEquipo);
+    ocultarEl(seccionAnaliticaTH);
+    mostrarEl(gridBeneficios);
+    mostrarEl(seccionLogin);
 }
 
 // ==========================================
@@ -518,8 +518,8 @@ function setupFormValidation() {
             const fechaSel = new Date(dtFechaInicio.value + 'T00:00:00');
             const diffDays = Math.ceil((fechaSel - hoy) / 86400000);
             fechaValid     = true;
-            if (diffDays < beneficioSeleccionado.diasAntelacion) lblAlertaFecha.classList.remove('hidden');
-            else lblAlertaFecha.classList.add('hidden');
+            if (diffDays < beneficioSeleccionado.diasAntelacion) mostrarEl(lblAlertaFecha);
+            else ocultarEl(lblAlertaFecha);
         }
 
         const adjuntoValid = !beneficioSeleccionado.requiereAdjunto || attSoportes.files.length > 0;
