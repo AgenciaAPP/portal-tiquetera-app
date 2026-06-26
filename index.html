@@ -5,11 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal de Solicitudes - Agencia APP</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .hidden { display: none !important; }
-        }
-    </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800 min-h-screen">
 
@@ -20,7 +15,7 @@
                 <h1 class="text-xl font-bold text-slate-900 tracking-tight sm:text-2xl">Portal de solicitud de tiquetera emocional y situaciones administrativas</h1>
                 <p class="text-slate-500 text-sm mt-1">Gestiona tus solicitudes de forma ágil y transparente</p>
             </div>
-            <div id="headerUsuario" class="hidden items-center gap-4 bg-indigo-50/60 border border-indigo-100 px-4 py-3 rounded-2xl transition-all shadow-sm w-full lg:w-auto justify-between lg:justify-start">
+            <div id="headerUsuario" style="display:none" class="items-center gap-4 bg-indigo-50/60 border border-indigo-100 px-4 py-3 rounded-2xl transition-all shadow-sm w-full lg:w-auto justify-between lg:justify-start">
                 <div class="flex items-center gap-3">
                     <div class="w-9 h-9 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-sm" id="avatarUsuario">--</div>
                     <div>
@@ -58,26 +53,26 @@
             <div class="space-y-4">
                 <input type="text" id="txtCedulaIngreso" class="w-full text-center rounded-xl border border-slate-200 p-3 text-lg font-bold tracking-wider focus:ring-2 focus:ring-indigo-500 focus:outline-none shadow-sm placeholder:font-normal placeholder:text-slate-300" placeholder="Número de Cédula">
                 <button type="button" id="btnValidarCedula" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm rounded-xl shadow-sm transition-all focus:outline-none flex items-center justify-center gap-2">
-                    <svg id="spinnerLoading" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <svg id="spinnerLoading" style="display:none" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
                     <span id="txtBtnValidar">Verificar</span>
                 </button>
-                <p id="lblErrorLogin" class="text-red-500 text-xs hidden font-medium bg-red-50 border border-red-100 py-2 rounded-lg">⚠️ Funcionario no habilitado o no encontrado.</p>
+                <p id="lblErrorLogin" style="display:none" class="text-red-500 text-xs font-medium bg-red-50 border border-red-100 py-2 rounded-lg">⚠️ Funcionario no habilitado o no encontrado.</p>
             </div>
         </div>
 
         <!-- ===== PORTAL PRINCIPAL ===== -->
-        <div id="seccionContenidoPortal" class="hidden transition-all duration-300">
+        <div id="seccionContenidoPortal" style="display:none" class="transition-all duration-300">
 
             <!-- Tabs de navegación -->
             <div class="border-b border-slate-200 mb-8">
                 <nav class="flex space-x-8" aria-label="Tabs">
                     <button id="tabTiquetera"       class="border-indigo-600 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all focus:outline-none">🎟️ Tiquetera Emocional</button>
                     <button id="tabAdministrativos" class="border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all focus:outline-none">💼 Situaciones Administrativas</button>
-                    <button id="tabEquipo"          class="hidden border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all focus:outline-none">👥 Mi Equipo</button>
-                    <button id="tabAnaliticaTH"     class="hidden border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all focus:outline-none">📊 Gestión Talento Humano</button>
+                    <button id="tabEquipo"          style="display:none" class="border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all focus:outline-none">👥 Mi Equipo</button>
+                    <button id="tabAnaliticaTH"     style="display:none" class="border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all focus:outline-none">📊 Gestión Talento Humano</button>
                 </nav>
             </div>
 
@@ -85,8 +80,7 @@
             <div id="gridBeneficios" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"></div>
 
             <!-- Panel B: Dashboard Jefe / Super Jefe -->
-            <div id="seccionDashboardEquipo" class="hidden space-y-6">
-
+            <div id="seccionDashboardEquipo" style="display:none" class="space-y-6">
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
                     <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm">
                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Colaboradores</span>
@@ -114,7 +108,6 @@
                         <span class="text-[10px] text-slate-400 mt-1 block">no aprobados</span>
                     </div>
                 </div>
-
                 <div class="bg-indigo-50 border border-indigo-100 rounded-2xl px-6 py-4 flex items-center gap-3">
                     <span class="text-2xl">🏆</span>
                     <div>
@@ -122,7 +115,6 @@
                         <span id="kpiTopTramiteEquipo" class="text-sm font-bold text-indigo-800 block mt-0.5">—</span>
                     </div>
                 </div>
-
                 <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
                     <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/60">
                         <h3 class="text-sm font-bold text-slate-900">Radicados y Novedades del Equipo</h3>
@@ -147,13 +139,11 @@
             </div>
 
             <!-- Panel C: Dashboard Talento Humano -->
-            <div id="seccionAnaliticaTH" class="hidden space-y-6">
-
+            <div id="seccionAnaliticaTH" style="display:none" class="space-y-6">
                 <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-2xl px-6 py-5 text-white shadow-sm">
                     <h2 class="text-base font-bold mb-0.5">📊 Consolidado Institucional — Talento Humano</h2>
                     <p class="text-indigo-200 text-xs">Visión 360° de beneficios y trámites de todos los servidores públicos de la Agencia APP</p>
                 </div>
-
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                     <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm border-t-4 border-t-indigo-600 lg:col-span-2">
                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Total Servidores Públicos</span>
@@ -174,7 +164,6 @@
                         <span id="kpiThPendientes" class="text-3xl font-bold text-amber-500 block">0</span>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm border-l-4 border-l-red-400">
                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Rechazados</span>
@@ -188,7 +177,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
                     <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                         <div>
@@ -220,7 +208,7 @@
     </main>
 
     <!-- ===== MODAL SOLICITUD ===== -->
-    <div id="modalBeneficio" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div id="modalBeneficio" style="display:none" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-lg overflow-hidden transform transition-all flex flex-col">
             <div class="bg-slate-50 border-b border-slate-200 px-6 py-4 flex justify-between items-center">
                 <h3 id="lblTituloPopup" class="font-bold text-lg text-slate-900">Título del Beneficio</h3>
@@ -229,18 +217,18 @@
             <form id="formSolicitud" class="p-6 space-y-5 flex-1">
                 <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 text-sm text-indigo-700 space-y-1">
                     <p id="lblAnticipacion">⏰ Mínimo X días de anticipación.</p>
-                    <p id="lblAlertaSoporte" class="hidden font-medium text-amber-700">📎 Este beneficio requiere adjuntar soporte.</p>
+                    <p id="lblAlertaSoporte" style="display:none" class="font-medium text-amber-700">📎 Este beneficio requiere adjuntar soporte.</p>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Fecha de Disfrute</label>
                     <input type="date" id="dtFechaInicio" class="w-full rounded-xl border border-slate-200 p-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none shadow-sm" required>
-                    <p id="lblAlertaFecha" class="text-red-500 text-xs mt-1 hidden">⚠️ La fecha seleccionada no cumple con la anticipación mínima requerida.</p>
+                    <p id="lblAlertaFecha" style="display:none" class="text-red-500 text-xs mt-1">⚠️ La fecha seleccionada no cumple con la anticipación mínima requerida.</p>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Justificación</label>
                     <textarea id="txtJustificacion" rows="3" class="w-full rounded-xl border border-slate-200 p-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none shadow-sm" placeholder="Escribe los detalles de tu solicitud..." required></textarea>
                 </div>
-                <div id="wrapperSoportes" class="hidden">
+                <div id="wrapperSoportes" style="display:none">
                     <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Documento de Soporte</label>
                     <div class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center hover:border-indigo-400 transition-colors cursor-pointer bg-slate-50 relative">
                         <input type="file" id="attSoportes" accept=".pdf, .png, .jpg, .jpeg" class="absolute inset-0 opacity-0 cursor-pointer">
