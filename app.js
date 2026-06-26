@@ -84,10 +84,10 @@ async function procesarAutenticacion() {
         const resultado = await respuesta.json();
 
         if (resultado.valido === "SI") {
-            permisosUsuario       = resultado.permisos       || [];
-            rolUsuarioActivo      = resultado.rol            || "EMPLEADO";
-            listaSubordinados     = resultado.subordinados   || [];
-            historicoPermisosEquipo = resultado.historicoEquipo || [];
+            permisosUsuario         = resultado.permisos         || [];
+            rolUsuarioActivo        = resultado.rol              || "EMPLEADO";
+            listaSubordinados       = resultado.subordinados     || [];
+            historicoPermisosEquipo = resultado.historicoEquipo  || [];
 
             const nombre = resultado.nombre || "Servidor Público";
             lblNombreUsuario.innerText = nombre;
@@ -117,28 +117,39 @@ async function procesarAutenticacion() {
 }
 
 // ==========================================
-// ORQUESTADOR DE ROL — decide qué pestañas
-// muestra y cuál activa por defecto
+// ORQUESTADOR DE ROL
+// Reglas:
+//   EMPLEADO   → Tiquetera + Administrativos
+//   JEFE       → Tiquetera + Administrativos + Mi Equipo (sus subordinados)
+//   SUPER_JEFE → Tiquetera + Administrativos + Mi Equipo (todos)
+//   ADMIN_TH   → solo Gestión Talento Humano (todos)
 // ==========================================
 function evaluarRolYActivarVista() {
-    // Reset: ocultar pestañas avanzadas
+    // Paso 1: ocultar TODAS las pestañas avanzadas sin excepción
     tabEquipo.classList.add('hidden');
     tabAnaliticaTH.classList.add('hidden');
-    tabTiquetera.classList.remove('hidden');
-    tabAdministrativos.classList.remove('hidden');
 
+    // Paso 2: ocultar/mostrar pestañas base según rol
     if (rolUsuarioActivo === "ADMIN_TH") {
-        // TH: solo ve su dashboard de reportería, nunca las pestañas de solicitud
+        // TH no solicita nada — solo reportería
         tabTiquetera.classList.add('hidden');
         tabAdministrativos.classList.add('hidden');
         tabAnaliticaTH.classList.remove('hidden');
         activarTab('AnaliticaTH');
+
     } else if (rolUsuarioActivo === "JEFE" || rolUsuarioActivo === "SUPER_JEFE") {
-        // Jefes: sus pestañas normales + pestaña de equipo
+        // Jefes solicitan normalmente + ven su equipo (o todos si SUPER_JEFE)
+        tabTiquetera.classList.remove('hidden');
+        tabAdministrativos.classList.remove('hidden');
         tabEquipo.classList.remove('hidden');
+        // tabAnaliticaTH permanece oculto — jefes NO ven reportería TH
         activarTab('Tiquetera');
+
     } else {
-        // Empleado estándar
+        // EMPLEADO estándar — solo solicita
+        tabTiquetera.classList.remove('hidden');
+        tabAdministrativos.classList.remove('hidden');
+        // tabEquipo y tabAnaliticaTH permanecen ocultos
         activarTab('Tiquetera');
     }
 }
@@ -159,12 +170,12 @@ const TAB_INACTIVO = "border-transparent text-slate-500 hover:text-slate-700 hov
 function activarTab(tipo) {
     tipoActual = tipo;
 
-    // Resetear estilos de todas las tabs
+    // Resetear estilos de todas las tabs visibles
     [tabTiquetera, tabAdministrativos, tabEquipo, tabAnaliticaTH].forEach(t => {
         if (t) t.className = TAB_INACTIVO;
     });
 
-    // Ocultar todos los paneles de contenido
+    // Ocultar todos los paneles
     gridBeneficios.classList.add('hidden');
     seccionDashboardEquipo.classList.add('hidden');
     seccionAnaliticaTH.classList.add('hidden');
@@ -195,7 +206,7 @@ function activarTab(tipo) {
 }
 
 // ==========================================
-// RENDER: GRID DE BENEFICIOS (empleado/jefe)
+// RENDER: GRID DE BENEFICIOS
 // ==========================================
 function renderGrid() {
     gridBeneficios.innerHTML = '';
@@ -204,9 +215,9 @@ function renderGrid() {
     filtrados.forEach(b => {
         const regla = permisosUsuario.find(p => p.Titulo === b.titulo);
 
-        let disponible    = true;
-        let mensajeBoton  = "Solicitar";
-        let badgeVeces    = "";
+        let disponible   = true;
+        let mensajeBoton = "Solicitar";
+        let badgeVeces   = "";
 
         if (regla) {
             const veces = parseInt(regla.VecesUsado) || 0;
@@ -228,8 +239,8 @@ function renderGrid() {
                     break;
             }
         } else if (tipoActual === "Tiquetera") {
-            disponible    = false;
-            mensajeBoton  = "No Habilitado";
+            disponible   = false;
+            mensajeBoton = "No Habilitado";
         }
 
         const card = document.createElement('div');
@@ -254,11 +265,10 @@ function renderGrid() {
 }
 
 // ==========================================
-// HELPERS DE FORMATO
+// HELPERS
 // ==========================================
 function formatFecha(str) {
     if (!str) return '—';
-    // Soporta ISO 8601 (Created) y date-only (FechaInicio)
     const d = new Date(str.includes('T') ? str : str + 'T00:00:00');
     return isNaN(d) ? str : d.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' });
 }
@@ -274,31 +284,27 @@ function badgeEstado(estado) {
 // RENDER: DASHBOARD JEFE / SUPER JEFE
 // ==========================================
 function renderDashboardEquipo() {
-    // --- KPIs ---
-    const totalServ    = listaSubordinados.length;
-    const totalSolic   = historicoPermisosEquipo.length;
-    const aprobados    = historicoPermisosEquipo.filter(r => (r.Estado||'').toLowerCase() === 'aprobado').length;
-    const rechazados   = historicoPermisosEquipo.filter(r => (r.Estado||'').toLowerCase() === 'rechazado').length;
-    const pendientes   = totalSolic - aprobados - rechazados;
+    const total      = historicoPermisosEquipo.length;
+    const aprobados  = historicoPermisosEquipo.filter(r => (r.Estado||'').toLowerCase() === 'aprobado').length;
+    const rechazados = historicoPermisosEquipo.filter(r => (r.Estado||'').toLowerCase() === 'rechazado').length;
+    const pendientes = total - aprobados - rechazados;
 
-    document.getElementById('kpiTotalEquipo').innerText           = totalServ;
-    document.getElementById('kpiTotalHistoricoEquipo').innerText  = totalSolic;
-    document.getElementById('kpiAprobadosEquipo').innerText       = aprobados;
-    document.getElementById('kpiRechazadosEquipo').innerText      = rechazados;
-    document.getElementById('kpiPendientesEquipo').innerText      = pendientes;
+    document.getElementById('kpiTotalEquipo').innerText          = listaSubordinados.length;
+    document.getElementById('kpiTotalHistoricoEquipo').innerText = total;
+    document.getElementById('kpiAprobadosEquipo').innerText      = aprobados;
+    document.getElementById('kpiRechazadosEquipo').innerText     = rechazados;
+    document.getElementById('kpiPendientesEquipo').innerText     = pendientes;
 
-    // --- Trámite más solicitado ---
     const conteo = {};
     historicoPermisosEquipo.forEach(r => {
         const k = r.PermisoSolicitado || 'Sin definir';
         conteo[k] = (conteo[k] || 0) + 1;
     });
-    const topTramite = Object.entries(conteo).sort((a, b) => b[1] - a[1])[0];
-    document.getElementById('kpiTopTramiteEquipo').innerText = topTramite ? `${topTramite[0]} (${topTramite[1]})` : '—';
+    const top = Object.entries(conteo).sort((a, b) => b[1] - a[1])[0];
+    document.getElementById('kpiTopTramiteEquipo').innerText = top ? `${top[0]} (${top[1]})` : '—';
 
-    // --- Tabla ---
     tbodyHistoricoEquipo.innerHTML = '';
-    if (historicoPermisosEquipo.length === 0) {
+    if (total === 0) {
         tbodyHistoricoEquipo.innerHTML = `
             <tr><td colspan="6" class="py-10 text-center text-xs font-medium text-slate-400 uppercase tracking-wider bg-slate-50/30">
                 No se registran solicitudes radicadas por el equipo de trabajo.
@@ -306,29 +312,28 @@ function renderDashboardEquipo() {
         return;
     }
 
-    // Ordenar por fecha de creación descendente
-    const ordenados = [...historicoPermisosEquipo].sort((a, b) => new Date(b.Created || 0) - new Date(a.Created || 0));
-
-    ordenados.forEach(reg => {
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50/50 transition-all";
-        tr.innerHTML = `
-            <td class="py-3.5 px-5 font-bold text-slate-800 text-xs tracking-wide">${reg.Title || '—'}</td>
-            <td class="py-3.5 px-5 text-xs font-semibold text-slate-700 max-w-[200px]">
-                <span class="block truncate" title="${reg.PermisoSolicitado || ''}">${reg.PermisoSolicitado || '—'}</span>
-            </td>
-            <td class="py-3.5 px-5 text-xs text-slate-500 whitespace-nowrap">${formatFecha(reg.Created)}</td>
-            <td class="py-3.5 px-5 text-xs text-slate-500 whitespace-nowrap">${formatFecha(reg.FechaInicio)}</td>
-            <td class="py-3.5 px-5 text-xs text-slate-400 max-w-[180px]">
-                <span class="block truncate" title="${reg.Justificacion || ''}">${reg.Justificacion || '—'}</span>
-            </td>
-            <td class="py-3.5 px-5">${badgeEstado(reg.Estado)}</td>`;
-        tbodyHistoricoEquipo.appendChild(tr);
-    });
+    [...historicoPermisosEquipo]
+        .sort((a, b) => new Date(b.Created || 0) - new Date(a.Created || 0))
+        .forEach(reg => {
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-slate-50/50 transition-all";
+            tr.innerHTML = `
+                <td class="py-3.5 px-5 font-bold text-slate-800 text-xs tracking-wide">${reg.Title || '—'}</td>
+                <td class="py-3.5 px-5 text-xs font-semibold text-slate-700 max-w-[200px]">
+                    <span class="block truncate" title="${reg.PermisoSolicitado || ''}">${reg.PermisoSolicitado || '—'}</span>
+                </td>
+                <td class="py-3.5 px-5 text-xs text-slate-500 whitespace-nowrap">${formatFecha(reg.Created)}</td>
+                <td class="py-3.5 px-5 text-xs text-slate-500 whitespace-nowrap">${formatFecha(reg.FechaInicio)}</td>
+                <td class="py-3.5 px-5 text-xs text-slate-400 max-w-[180px]">
+                    <span class="block truncate" title="${reg.Justificacion || ''}">${reg.Justificacion || '—'}</span>
+                </td>
+                <td class="py-3.5 px-5">${badgeEstado(reg.Estado)}</td>`;
+            tbodyHistoricoEquipo.appendChild(tr);
+        });
 }
 
 // ==========================================
-// RENDER: DASHBOARD TALENTO HUMANO (ADMIN_TH)
+// RENDER: DASHBOARD TALENTO HUMANO
 // ==========================================
 function renderDashboardTalentoHumano() {
     const total      = historicoPermisosEquipo.length;
@@ -336,13 +341,12 @@ function renderDashboardTalentoHumano() {
     const rechazados = historicoPermisosEquipo.filter(r => (r.Estado||'').toLowerCase() === 'rechazado').length;
     const pendientes = total - aprobados - rechazados;
 
-    document.getElementById('kpiThTotalServidores').innerText  = listaSubordinados.length;
-    document.getElementById('kpiThTotalTramites').innerText    = total;
-    document.getElementById('kpiThAprobados').innerText        = aprobados;
-    document.getElementById('kpiThRechazados').innerText       = rechazados;
-    document.getElementById('kpiThPendientes').innerText       = pendientes;
+    document.getElementById('kpiThTotalServidores').innerText = listaSubordinados.length;
+    document.getElementById('kpiThTotalTramites').innerText   = total;
+    document.getElementById('kpiThAprobados').innerText       = aprobados;
+    document.getElementById('kpiThRechazados').innerText      = rechazados;
+    document.getElementById('kpiThPendientes').innerText      = pendientes;
 
-    // Trámite más solicitado globalmente
     const conteo = {};
     historicoPermisosEquipo.forEach(r => {
         const k = r.PermisoSolicitado || 'Sin definir';
@@ -364,32 +368,29 @@ function inyectarRegistrosTablaTH(datos) {
         return;
     }
 
-    const ordenados = [...datos].sort((a, b) => new Date(b.Created || 0) - new Date(a.Created || 0));
-
-    ordenados.forEach(reg => {
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50/50 transition-all";
-        tr.innerHTML = `
-            <td class="py-3.5 px-5 font-bold text-slate-800 text-xs tracking-wide">${reg.Title || '—'}</td>
-            <td class="py-3.5 px-5 text-xs font-semibold text-slate-700 max-w-[200px]">
-                <span class="block truncate" title="${reg.PermisoSolicitado || ''}">${reg.PermisoSolicitado || '—'}</span>
-            </td>
-            <td class="py-3.5 px-5 text-xs text-slate-500 whitespace-nowrap">${formatFecha(reg.Created)}</td>
-            <td class="py-3.5 px-5 text-xs text-slate-500 whitespace-nowrap">${formatFecha(reg.FechaInicio)}</td>
-            <td class="py-3.5 px-5 text-xs text-slate-400 max-w-[180px]">
-                <span class="block truncate" title="${reg.Justificacion || ''}">${reg.Justificacion || '—'}</span>
-            </td>
-            <td class="py-3.5 px-5">${badgeEstado(reg.Estado)}</td>`;
-        tbodyHistoricoTH.appendChild(tr);
-    });
+    [...datos]
+        .sort((a, b) => new Date(b.Created || 0) - new Date(a.Created || 0))
+        .forEach(reg => {
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-slate-50/50 transition-all";
+            tr.innerHTML = `
+                <td class="py-3.5 px-5 font-bold text-slate-800 text-xs tracking-wide">${reg.Title || '—'}</td>
+                <td class="py-3.5 px-5 text-xs font-semibold text-slate-700 max-w-[200px]">
+                    <span class="block truncate" title="${reg.PermisoSolicitado || ''}">${reg.PermisoSolicitado || '—'}</span>
+                </td>
+                <td class="py-3.5 px-5 text-xs text-slate-500 whitespace-nowrap">${formatFecha(reg.Created)}</td>
+                <td class="py-3.5 px-5 text-xs text-slate-500 whitespace-nowrap">${formatFecha(reg.FechaInicio)}</td>
+                <td class="py-3.5 px-5 text-xs text-slate-400 max-w-[180px]">
+                    <span class="block truncate" title="${reg.Justificacion || ''}">${reg.Justificacion || '—'}</span>
+                </td>
+                <td class="py-3.5 px-5">${badgeEstado(reg.Estado)}</td>`;
+            tbodyHistoricoTH.appendChild(tr);
+        });
 }
 
 function filtrarTablaTalentoHumano() {
     const busqueda = inputBuscadorTH.value.trim().toLowerCase();
-    if (!busqueda) {
-        inyectarRegistrosTablaTH(historicoPermisosEquipo);
-        return;
-    }
+    if (!busqueda) { inyectarRegistrosTablaTH(historicoPermisosEquipo); return; }
     const filtrados = historicoPermisosEquipo.filter(reg =>
         (reg.Title || '').toLowerCase().includes(busqueda) ||
         (reg.PermisoSolicitado || '').toLowerCase().includes(busqueda)
@@ -409,8 +410,8 @@ async function procesarEnvioSolicitud() {
     btnEnviarSolicitud.disabled  = true;
     btnEnviarSolicitud.innerText = "Enviando Radicado...";
 
-    let nombreArchivo    = "Sin_Soporte.txt";
-    let contenidoBase64  = "VGV4dG8gZHUgbXkgcGFyYSBldml0YXIgZmFsbG9z";
+    let nombreArchivo   = "Sin_Soporte.txt";
+    let contenidoBase64 = "VGV4dG8gZHUgbXkgcGFyYSBldml0YXIgZmFsbG9z";
 
     try {
         if (beneficioSeleccionado.requiereAdjunto && attSoportes.files.length > 0) {
@@ -453,8 +454,8 @@ function abrirPopup(b) {
     document.getElementById('lblTituloPopup').innerText = b.titulo;
     document.getElementById('lblAnticipacion').innerHTML = `⏰ <strong>Mínimo ${b.diasAntelacion} días de anticipación.</strong><br><span class="block mt-2 font-normal text-slate-600 text-xs leading-relaxed">${b.hint}</span>`;
 
-    const wrapSoportes   = document.getElementById('wrapperSoportes');
-    const lblAlertaSop   = document.getElementById('lblAlertaSoporte');
+    const wrapSoportes = document.getElementById('wrapperSoportes');
+    const lblAlertaSop = document.getElementById('lblAlertaSoporte');
     if (b.requiereAdjunto) { wrapSoportes.classList.remove('hidden'); lblAlertaSop.classList.remove('hidden'); }
     else                   { wrapSoportes.classList.add('hidden');    lblAlertaSop.classList.add('hidden'); }
 
@@ -474,7 +475,7 @@ window.cerrarPopup = function() {
 };
 
 // ==========================================
-// CERRAR SESIÓN — reset completo de estado
+// CERRAR SESIÓN — reset total de estado
 // ==========================================
 function cerrarSesion() {
     permisosUsuario         = [];
@@ -484,15 +485,15 @@ function cerrarSesion() {
     txtCedulaIngreso.value  = "";
     if (inputBuscadorTH) inputBuscadorTH.value = "";
 
-    // Reset visual de tabs avanzadas
+    // Reset visual completo de tabs — ninguna avanzada debe quedar visible
     tabEquipo.classList.add('hidden');
     tabAnaliticaTH.classList.add('hidden');
     tabTiquetera.classList.remove('hidden');
     tabAdministrativos.classList.remove('hidden');
-    tabTiquetera.className    = TAB_ACTIVO;
+    tabTiquetera.className       = TAB_ACTIVO;
     tabAdministrativos.className = TAB_INACTIVO;
 
-    // Ocultar todo el portal
+    // Ocultar portal, mostrar login
     headerUsuario.classList.add('hidden');
     headerUsuario.classList.remove('flex');
     seccionContenidoPortal.classList.add('hidden');
@@ -518,14 +519,14 @@ function setupFormValidation() {
 
     function validarFormulario() {
         if (!beneficioSeleccionado) return;
-        const justValid  = txtJustificacion.value.trim().length > 0;
-        let fechaValid   = false;
+        const justValid = txtJustificacion.value.trim().length > 0;
+        let fechaValid  = false;
 
         if (dtFechaInicio.value) {
-            const hoy     = new Date(); hoy.setHours(0,0,0,0);
+            const hoy      = new Date(); hoy.setHours(0,0,0,0);
             const fechaSel = new Date(dtFechaInicio.value + 'T00:00:00');
             const diffDays = Math.ceil((fechaSel - hoy) / 86400000);
-            fechaValid = true;
+            fechaValid     = true;
             if (diffDays < beneficioSeleccionado.diasAntelacion) lblAlertaFecha.classList.remove('hidden');
             else lblAlertaFecha.classList.add('hidden');
         }
