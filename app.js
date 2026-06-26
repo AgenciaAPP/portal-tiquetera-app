@@ -118,38 +118,33 @@ async function procesarAutenticacion() {
 
 // ==========================================
 // ORQUESTADOR DE ROL
-// Reglas:
-//   EMPLEADO   → Tiquetera + Administrativos
-//   JEFE       → Tiquetera + Administrativos + Mi Equipo (sus subordinados)
-//   SUPER_JEFE → Tiquetera + Administrativos + Mi Equipo (todos)
-//   ADMIN_TH   → solo Gestión Talento Humano (todos)
+// EMPLEADO   → Tiquetera + Administrativos
+// JEFE       → Tiquetera + Administrativos + Mi Equipo
+// SUPER_JEFE → Tiquetera + Administrativos + Mi Equipo (todos)
+// ADMIN_TH   → solo Gestión Talento Humano
 // ==========================================
 function evaluarRolYActivarVista() {
-    // Paso 1: ocultar TODAS las pestañas avanzadas sin excepción
+    // Ocultar TODAS las pestañas primero sin excepción
+    tabTiquetera.classList.add('hidden');
+    tabAdministrativos.classList.add('hidden');
     tabEquipo.classList.add('hidden');
     tabAnaliticaTH.classList.add('hidden');
 
-    // Paso 2: ocultar/mostrar pestañas base según rol
+    // Mostrar solo las que corresponden al rol
     if (rolUsuarioActivo === "ADMIN_TH") {
-        // TH no solicita nada — solo reportería
-        tabTiquetera.classList.add('hidden');
-        tabAdministrativos.classList.add('hidden');
         tabAnaliticaTH.classList.remove('hidden');
         activarTab('AnaliticaTH');
 
     } else if (rolUsuarioActivo === "JEFE" || rolUsuarioActivo === "SUPER_JEFE") {
-        // Jefes solicitan normalmente + ven su equipo (o todos si SUPER_JEFE)
         tabTiquetera.classList.remove('hidden');
         tabAdministrativos.classList.remove('hidden');
         tabEquipo.classList.remove('hidden');
-        // tabAnaliticaTH permanece oculto — jefes NO ven reportería TH
         activarTab('Tiquetera');
 
     } else {
-        // EMPLEADO estándar — solo solicita
+        // EMPLEADO
         tabTiquetera.classList.remove('hidden');
         tabAdministrativos.classList.remove('hidden');
-        // tabEquipo y tabAnaliticaTH permanecen ocultos
         activarTab('Tiquetera');
     }
 }
@@ -170,17 +165,14 @@ const TAB_INACTIVO = "border-transparent text-slate-500 hover:text-slate-700 hov
 function activarTab(tipo) {
     tipoActual = tipo;
 
-    // Resetear estilos de todas las tabs visibles
     [tabTiquetera, tabAdministrativos, tabEquipo, tabAnaliticaTH].forEach(t => {
         if (t) t.className = TAB_INACTIVO;
     });
 
-    // Ocultar todos los paneles
     gridBeneficios.classList.add('hidden');
     seccionDashboardEquipo.classList.add('hidden');
     seccionAnaliticaTH.classList.add('hidden');
 
-    // Activar tab y panel correspondiente
     switch (tipo) {
         case 'Tiquetera':
             tabTiquetera.className = TAB_ACTIVO;
@@ -440,7 +432,7 @@ async function procesarEnvioSolicitud() {
 
     } catch (err) {
         console.error(err);
-        alert("⚠️ Hubo un problema al radicar tu solicitud. Por favor, reintenta.");
+        alert("⚠️ Huedo un problema al radicar tu solicitud. Por favor, reintenta.");
         btnEnviarSolicitud.disabled  = false;
         btnEnviarSolicitud.innerText = "Enviar Solicitud";
     }
@@ -485,15 +477,14 @@ function cerrarSesion() {
     txtCedulaIngreso.value  = "";
     if (inputBuscadorTH) inputBuscadorTH.value = "";
 
-    // Reset visual completo de tabs — ninguna avanzada debe quedar visible
-    tabEquipo.classList.add('hidden');
-    tabAnaliticaTH.classList.add('hidden');
+    // Ocultar todas las tabs y resetear visualmente
     tabTiquetera.classList.remove('hidden');
     tabAdministrativos.classList.remove('hidden');
+    tabEquipo.classList.add('hidden');
+    tabAnaliticaTH.classList.add('hidden');
     tabTiquetera.className       = TAB_ACTIVO;
     tabAdministrativos.className = TAB_INACTIVO;
 
-    // Ocultar portal, mostrar login
     headerUsuario.classList.add('hidden');
     headerUsuario.classList.remove('flex');
     seccionContenidoPortal.classList.add('hidden');
