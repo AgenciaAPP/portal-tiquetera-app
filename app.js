@@ -417,10 +417,23 @@ window.aplicarFiltrosTH     = function() { renderDashboardTH(); };
 // ==========================================
 // POPUP + ENVÍO
 // ==========================================
+function esCitaMedica(b) {
+    return b.titulo.toLowerCase().includes('cita') && b.titulo.toLowerCase().includes('medic');
+}
+
 function abrirPopup(b) {
     beneficioSeleccionado = b;
     document.getElementById('lblTituloPopup').innerText = b.titulo;
     document.getElementById('lblAnticipacion').innerHTML = `⏰ <strong>Mínimo ${b.diasAntelacion} días de anticipación.</strong><br><span style="display:block;margin-top:8px;font-size:12px;color:#475569;font-weight:400;line-height:1.5">${b.hint}</span>`;
+
+    // Etiqueta de fecha: neutra para todos los beneficios
+    document.getElementById('lblFechaDisfrute').innerText = "Fecha de la Solicitud";
+
+    // Campo de hora: solo visible para citas médicas
+    const wrapHora = document.getElementById('wrapperHoraCita');
+    if(esCitaMedica(b)) { mostrarEl(wrapHora); }
+    else { ocultarEl(wrapHora); }
+
     const ws=document.getElementById('wrapperSoportes'), la=document.getElementById('lblAlertaSoporte');
     if(b.requiereAdjunto){mostrarEl(ws);mostrarEl(la);}else{ocultarEl(ws);ocultarEl(la);}
     document.getElementById('formSolicitud').reset();
@@ -433,7 +446,14 @@ window.cerrarPopup = function() { ocultarEl(modal); beneficioSeleccionado=null; 
 
 async function procesarEnvioSolicitud() {
     const cedula=lblCedulaUsuario.innerText, beneficio=beneficioSeleccionado.titulo;
-    const fecha=dtFechaInicio.value, justificacion=txtJustificacion.value.trim();
+    const fecha=dtFechaInicio.value;
+    let justificacion=txtJustificacion.value.trim();
+
+    // Si es cita médica, anteponer la hora en la justificación
+    if(esCitaMedica(beneficioSeleccionado)) {
+        const hora = document.getElementById('inputHoraCita')?.value;
+        if(hora) justificacion = `Hora de la cita: ${hora}\n${justificacion}`;
+    }
     btnEnviarSolicitud.disabled=true; btnEnviarSolicitud.innerText="Enviando Radicado...";
     let nombreArchivo="Sin_Soporte.txt", contenidoBase64="VGV4dG8gZHUgbXkgcGFyYSBldml0YXIgZmFsbG9z";
     try {
@@ -464,6 +484,7 @@ function setupFormValidation() {
     const laf=document.getElementById('lblAlertaFecha');
     attSoportes.addEventListener('change', e=>{ if(e.target.files.length>0) document.getElementById('lblFileStatus').innerText=`✅ ${e.target.files[0].name}`; validar(); });
     [dtFechaInicio,txtJustificacion].forEach(el=>el.addEventListener('input',validar));
+    document.getElementById('inputHoraCita')?.addEventListener('input', validar);
     function validar() {
         if(!beneficioSeleccionado) return;
         const jv=txtJustificacion.value.trim().length>0;
@@ -473,6 +494,9 @@ function setupFormValidation() {
             fv=true;
             Math.ceil((new Date(dtFechaInicio.value+'T00:00:00')-hoy)/86400000)<beneficioSeleccionado.diasAntelacion ? mostrarEl(laf) : ocultarEl(laf);
         }
-        btnEnviarSolicitud.disabled=!(jv&&fv&&(!beneficioSeleccionado.requiereAdjunto||attSoportes.files.length>0));
+        const horaVal = esCitaMedica(beneficioSeleccionado)
+            ? (document.getElementById('inputHoraCita')?.value?.trim().length > 0)
+            : true;
+        btnEnviarSolicitud.disabled=!(jv&&fv&&horaVal&&(!beneficioSeleccionado.requiereAdjunto||attSoportes.files.length>0));
     }
 }
