@@ -323,9 +323,14 @@
                 <p id="lblAlertaSoporte" style="display:none" class="font-medium text-amber-700 mt-1">📎 Este beneficio requiere adjuntar soporte.</p>
             </div>
             <div>
-                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Fecha de Disfrute</label>
+                <label id="lblFechaDisfrute" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Fecha de la Solicitud</label>
                 <input type="date" id="dtFechaInicio" class="w-full rounded-xl border border-slate-200 p-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none shadow-sm" required>
                 <p id="lblAlertaFecha" style="display:none" class="text-red-500 text-xs mt-1">⚠️ La fecha no cumple con la anticipación mínima requerida.</p>
+            </div>
+            <div id="wrapperHoraCita" style="display:none">
+                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Hora de la Cita Médica</label>
+                <input type="time" id="inputHoraCita" class="w-full rounded-xl border border-slate-200 p-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none shadow-sm">
+                <p class="text-xs text-slate-400 mt-1">⏰ Indica la hora exacta de tu cita para el registro institucional.</p>
             </div>
             <div>
                 <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Justificación</label>
