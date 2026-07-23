@@ -108,8 +108,8 @@ function evaluarRolYActivarVista() {
     }
 }
 
-const TAB_ACTIVO   = "border-indigo-600 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all focus:outline-none";
-const TAB_INACTIVO = "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all focus:outline-none";
+const TAB_ACTIVO   = "tab-activo font-heading whitespace-nowrap py-4 px-1 text-sm transition-all focus:outline-none";
+const TAB_INACTIVO = "tab-inactivo font-heading whitespace-nowrap py-4 px-1 text-sm transition-all focus:outline-none";
 
 function setupTabs() {
     tabTiquetera.addEventListener('click', () => activarTab('Tiquetera'));
@@ -188,7 +188,7 @@ function badge(estado) {
     return `<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:9999px;font-size:10px;font-weight:700;background:${cfg.bg};color:${cfg.c};border:1px solid ${cfg.bc}">${cfg.ico} ${cfg.txt}</span>`;
 }
 
-function avatarDiv(nombre, size=28, bg='#6366f1') {
+function avatarDiv(nombre, size=28, bg='#1E1C66') {
     return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${bg};color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:${Math.round(size*0.4)}px;flex-shrink:0">${nombre.charAt(0).toUpperCase()}</div>`;
 }
 
@@ -224,7 +224,7 @@ function barras(conteo, total, contenedorId) {
     if(!el) return;
     const sorted = Object.entries(conteo).sort((a,b)=>b[1]-a[1]).slice(0,7);
     const maxVal = sorted[0]?.[1] || 1;
-    const cols = ['#6366f1','#0ea5e9','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4'];
+    const cols = ['#1E1C66','#0ea5e9','#10b981','#f59e0b','#ef4444','#00A6B8','#06b6d4'];
     el.innerHTML = sorted.length === 0
         ? '<p style="font-size:12px;color:#94a3b8;text-align:center;padding:16px">Sin datos.</p>'
         : sorted.map(([nom,val],i) => `
@@ -366,7 +366,7 @@ function renderTarjetasServidores(hist) {
         const a = sols.filter(r=>getEstado(r).toLowerCase()==='aprobado').length;
         const re = sols.filter(r=>getEstado(r).toLowerCase()==='rechazado').length;
         const pe = sols.length-a-re;
-        const bgAv = sols.length===0?'#94a3b8':a>re?'#6366f1':'#f59e0b';
+        const bgAv = sols.length===0?'#94a3b8':a>re?'#1E1C66':'#f59e0b';
         return `<div style="background:white;border:1px solid #e2e8f0;border-radius:16px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.05)" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.09)'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
                 ${avatarDiv(nom,36,bgAv)}
@@ -446,14 +446,14 @@ function renderRankingServidores(hist) {
             const rech  = hist.filter(r=>r.Title===ced && getEstado(r).toLowerCase()==='rechazado').length;
             return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f1f5f9">
                 <span style="font-size:18px;width:24px;text-align:center">${medallas[i]||`<span style='font-size:12px;color:#94a3b8;font-weight:700'>#${i+1}</span>`}</span>
-                ${avatarDiv(nom,32,'#6366f1')}
+                ${avatarDiv(nom,32,'#1E1C66')}
                 <div style="flex:1;min-width:0">
                     <div style="display:flex;justify-content:space-between;margin-bottom:3px">
                         <span style="font-size:12px;font-weight:700;color:#1e293b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${nom}</span>
-                        <span style="font-size:11px;font-weight:700;color:#6366f1;flex-shrink:0;margin-left:8px">${val} sol.</span>
+                        <span style="font-size:11px;font-weight:700;color:#1E1C66;flex-shrink:0;margin-left:8px">${val} sol.</span>
                     </div>
                     <div style="background:#f1f5f9;border-radius:9999px;height:6px;overflow:hidden;margin-bottom:3px">
-                        <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#6366f1,#8b5cf6);border-radius:9999px"></div>
+                        <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#1E1C66,#00A6B8);border-radius:9999px"></div>
                     </div>
                     <div style="display:flex;gap:8px">
                         <span style="font-size:10px;color:#15803d;font-weight:600">✔ ${aprob} aprobados</span>
