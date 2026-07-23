@@ -9,9 +9,17 @@ let permisosUsuario = [];
 let rolUsuarioActivo = "EMPLEADO";
 let listaSubordinados = [];
 let historicoPermisosEquipo = [];
+let usadoEstaSemana = false;
+let totalAnualUsado = 0;
 
 const URL_FLOW_CONSULTA = "https://54b407e9c34be36d9ed93dfaf5a04b.e5.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/416f1b2038a24f729b516db2c869774e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KjDEhk6b_cTv_TF3yc0B43OvtdKAJ4qfKPs27gOjBG8";
 const URL_FLOW_REGISTRO = "https://54b407e9c34be36d9ed93dfaf5a04b.e5.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/0545fde32b6648ef94ea9f6e01c70d6b/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=yQ3l3qxdl2oAS6KpgPBDYTOR88hwzGyxTwW29sVNJ6k";
+
+// Títulos excluidos del conteo anual de 15
+const EXCLUIDOS_CONTEO_ANUAL = [
+    "Día para Trabajo desde casa",
+    "Desconexión temprana"
+];
 
 const gridBeneficios         = document.getElementById('gridBeneficios');
 const tabTiquetera           = document.getElementById('tabTiquetera');
@@ -65,10 +73,13 @@ async function procesarAutenticacion() {
         if(!r.ok) throw new Error();
         const res = await r.json();
         if(res.valido === "SI") {
-            permisosUsuario = res.permisos || [];
-            rolUsuarioActivo = res.rol || "EMPLEADO";
-            listaSubordinados = res.subordinados || [];
-            historicoPermisosEquipo = res.historicoEquipo || [];
+            permisosUsuario         = res.permisos         || [];
+            rolUsuarioActivo        = res.rol              || "EMPLEADO";
+            listaSubordinados       = res.subordinados     || [];
+            historicoPermisosEquipo = res.historicoEquipo  || [];
+            usadoEstaSemana         = res.usadoEstaSemana  || false;
+            totalAnualUsado         = res.totalAnualUsado  || 0;
+
             const nombre = res.nombre || "Servidor Público";
             lblNombreUsuario.innerText = nombre;
             lblCedulaUsuario.innerText = cedula;
@@ -134,6 +145,7 @@ function formatFecha(str) {
 }
 function getEstado(reg) { return (reg.Estado?.Value || reg.Estado || '').toString(); }
 function getNombre(cedula) { return listaSubordinados.find(s=>s.Title===cedula)?.NombreCompleto || cedula; }
+function esExcluidoConteoAnual(titulo) { return EXCLUIDOS_CONTEO_ANUAL.includes(titulo); }
 
 function badge(estado) {
     const e = estado.toLowerCase();
@@ -195,27 +207,94 @@ function barras(conteo, total, contenedorId) {
 }
 
 // ==========================================
-// GRID BENEFICIOS
+// GRID BENEFICIOS — con las 3 reglas nuevas
 // ==========================================
 function renderGrid() {
     gridBeneficios.innerHTML = '';
+
+    // Banner de límite semanal — solo aplica en tiquetera
+    if(tipoActual === "Tiquetera") {
+        const bannerSemana = document.getElementById('bannerLimiteSemanal');
+        if(bannerSemana) {
+            if(usadoEstaSemana) mostrarEl(bannerSemana);
+            else ocultarEl(bannerSemana);
+        }
+
+        // Banner de límite anual
+        const bannerAnual = document.getElementById('bannerLimiteAnual');
+        if(bannerAnual) {
+            const restantes = 15 - totalAnualUsado;
+            if(totalAnualUsado >= 15) {
+                bannerAnual.innerHTML = `🚫 Has alcanzado el límite anual de <strong>15 beneficios</strong>. No puedes radicar más solicitudes de tiquetera emocional este año.`;
+                bannerAnual.style.background = '#fef2f2';
+                bannerAnual.style.borderColor = '#fecaca';
+                bannerAnual.style.color = '#b91c1c';
+                mostrarEl(bannerAnual);
+            } else if(restantes <= 3) {
+                bannerAnual.innerHTML = `⚠️ Te quedan <strong>${restantes} beneficio${restantes===1?'':'s'}</strong> disponibles de tu cuota anual de 15. (Trabajo desde casa y Desconexión temprana no cuentan en este límite.)`;
+                bannerAnual.style.background = '#fffbeb';
+                bannerAnual.style.borderColor = '#fde68a';
+                bannerAnual.style.color = '#b45309';
+                mostrarEl(bannerAnual);
+            } else {
+                ocultarEl(bannerAnual);
+            }
+        }
+    }
+
     beneficios.filter(b=>b.tipo===tipoActual).forEach(b => {
         const regla = permisosUsuario.find(p=>p.Titulo===b.titulo);
-        let disponible=true, btn="Solicitar", badge2="";
-        if(regla) {
+        let disponible=true, btn="Solicitar", badge2="", motivo="";
+
+        if(tipoActual === "Tiquetera") {
+            // Regla 1: límite semanal (no aplica a excluidos)
+            if(usadoEstaSemana && !esExcluidoConteoAnual(b.titulo)) {
+                disponible = false;
+                btn = "Límite semanal alcanzado";
+                motivo = "semanal";
+            }
+
+            // Regla 2: límite anual de 15 (no aplica a excluidos)
+            if(totalAnualUsado >= 15 && !esExcluidoConteoAnual(b.titulo)) {
+                disponible = false;
+                btn = "Límite anual alcanzado (Máx 15)";
+                motivo = "anual15";
+            }
+        }
+
+        // Reglas individuales por beneficio (solo si aún está disponible)
+        if(disponible) {
+            if(regla) {
+                const v = parseInt(regla.VecesUsado)||0;
+                badge2 = `<span class="text-[11px] text-slate-400 font-medium block mt-1">Usado este año: ${v} vez/veces</span>`;
+                if(regla.ReglaBloqueo==="Anual" && v>=1)         { disponible=false; btn="Ya utilizado este año"; }
+                if(regla.ReglaBloqueo==="Semestral" && v>=1)      { disponible=false; btn="Límite semestral alcanzado"; }
+                if(regla.ReglaBloqueo==="Mensual" && v>=1)        { disponible=false; btn="Límite mensual alcanzado"; }
+                if(regla.ReglaBloqueo==="Anual_Limite_2" && v>=2) { disponible=false; btn="Límite anual alcanzado (Máx 2)"; }
+                if(regla.ReglaBloqueo==="Anual_Limite_2" && v===1) badge2 += `<span class="text-[10px] text-amber-500 font-semibold block mt-0.5">⚠️ Te queda 1 solicitud disponible</span>`;
+            } else if(tipoActual==="Tiquetera") {
+                disponible=false; btn="No Habilitado";
+            }
+        } else if(regla) {
+            // Mostrar conteo aunque esté bloqueado por regla global
             const v = parseInt(regla.VecesUsado)||0;
             badge2 = `<span class="text-[11px] text-slate-400 font-medium block mt-1">Usado este año: ${v} vez/veces</span>`;
-            if(regla.ReglaBloqueo==="Anual" && v>=1)          { disponible=false; btn="Ya utilizado este año"; }
-            if(regla.ReglaBloqueo==="Semestral" && v>=1)       { disponible=false; btn="Límite semestral alcanzado"; }
-            if(regla.ReglaBloqueo==="Anual_Limite_2" && v>=2)  { disponible=false; btn="Límite anual alcanzado (Máx 2)"; }
-            if(regla.ReglaBloqueo==="Anual_Limite_2" && v===1) badge2 += `<span class="text-[10px] text-amber-500 font-semibold block mt-0.5">⚠️ Te queda 1 solicitud disponible</span>`;
-        } else if(tipoActual==="Tiquetera") { disponible=false; btn="No Habilitado"; }
+        }
+
+        // Badge de cuota anual restante (solo para beneficios que cuentan en el límite)
+        if(tipoActual === "Tiquetera" && !esExcluidoConteoAnual(b.titulo) && disponible) {
+            const restantes = 15 - totalAnualUsado;
+            if(restantes <= 3 && restantes > 0) {
+                badge2 += `<span class="text-[10px] text-amber-500 font-semibold block mt-0.5">📊 Cuota anual: ${totalAnualUsado}/15 usados</span>`;
+            }
+        }
+
         const card = document.createElement('div');
         card.className = `bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between ${!disponible?'opacity-60 bg-slate-50/50':''}`;
         card.innerHTML = `<div>
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${b.requiereAdjunto?'bg-amber-50 text-amber-800 border border-amber-100':'bg-emerald-50 text-emerald-800 border border-emerald-100'}">${b.requiereAdjunto?'📎 Requiere Soporte':'⚡ Uso Directo'}</span>
             <h4 class="text-base font-bold text-slate-900 mt-3 mb-1 leading-snug">${b.titulo}</h4>
-            <p class="text-xs text-slate-400">Anticipación: ${b.diasAntelacion} días hábiles</p>${badge2}
+            <p class="text-xs text-slate-400">Anticipación: ${b.diasAntelacion} día${b.diasAntelacion===1?'':'s'} hábil${b.diasAntelacion===1?'':'es'}</p>${badge2}
             </div>
             <button class="mt-6 w-full text-center py-2.5 px-4 rounded-xl text-sm font-semibold transition-all ${disponible?'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm':'bg-slate-200 text-slate-400 cursor-not-allowed'}" ${!disponible?'disabled':''}>${btn}</button>`;
         if(disponible) card.querySelector('button').addEventListener('click', ()=>abrirPopup(b));
@@ -242,7 +321,6 @@ function renderDashboardEquipo() {
             && (!ben  || r.PermisoSolicitado===ben);
     });
 
-    // KPIs sobre histórico filtrado
     const total   = histFiltrado.length;
     const aprob   = histFiltrado.filter(r=>getEstado(r).toLowerCase()==='aprobado').length;
     const rech    = histFiltrado.filter(r=>getEstado(r).toLowerCase()==='rechazado').length;
@@ -256,13 +334,11 @@ function renderDashboardEquipo() {
     document.getElementById('kpiPendientesEquipo').innerText     = pend;
     document.getElementById('kpiTasaAprobacion').innerText       = tasa;
 
-    // Top trámite
     const conteo = {};
     histFiltrado.forEach(r => { const k=r.PermisoSolicitado||'Sin definir'; conteo[k]=(conteo[k]||0)+1; });
     const top = Object.entries(conteo).sort((a,b)=>b[1]-a[1])[0];
     document.getElementById('kpiTopTramiteEquipo').innerText = top ? `${top[0]} (${top[1]})` : '—';
 
-    // Poblar select beneficios
     const selBen = document.getElementById('filtroEquipoBeneficio');
     if(selBen && selBen.options.length <= 1) {
         [...new Set(historicoPermisosEquipo.map(r=>r.PermisoSolicitado).filter(Boolean))].sort().forEach(b => {
@@ -270,13 +346,9 @@ function renderDashboardEquipo() {
         });
     }
 
-    // Barras
     barras(conteo, total||1, 'graficaBeneficiosEquipo');
-
-    // Tarjetas servidores (siempre con histórico completo sin filtro de texto/estado)
     renderTarjetasServidores(aplicarFiltroFecha(historicoPermisosEquipo, 'filtroEquipoDesde', 'filtroEquipoHasta'));
 
-    // Tabla
     tbodyHistoricoEquipo.innerHTML = [...histFiltrado]
         .sort((a,b)=>new Date(b.Created||0)-new Date(a.Created||0))
         .map(serverRow).join('') ||
@@ -334,8 +406,6 @@ function renderDashboardTH() {
     const rech  = histFiltrado.filter(r=>getEstado(r).toLowerCase()==='rechazado').length;
     const pend  = total - aprob - rech;
     const tasa  = total>0 ? Math.round(aprob/total*100)+'%' : '—';
-
-    // Servidores únicos en el período
     const sevsActivos = new Set(histFiltrado.map(r=>r.Title)).size;
 
     document.getElementById('kpiThTotalServidores').innerText  = listaSubordinados.length;
@@ -346,13 +416,11 @@ function renderDashboardTH() {
     document.getElementById('kpiThPendientes').innerText       = pend;
     document.getElementById('kpiThTasa').innerText             = tasa;
 
-    // Top trámite
     const conteo = {};
     histFiltrado.forEach(r => { const k=r.PermisoSolicitado||'Sin definir'; conteo[k]=(conteo[k]||0)+1; });
     const top = Object.entries(conteo).sort((a,b)=>b[1]-a[1])[0];
     document.getElementById('kpiThTopTramite').innerText = top ? `${top[0]} (${top[1]})` : '—';
 
-    // Poblar select TH
     const selBenTH = document.getElementById('filtroTHBeneficio');
     if(selBenTH && selBenTH.options.length<=1) {
         [...new Set(historicoPermisosEquipo.map(r=>r.PermisoSolicitado).filter(Boolean))].sort().forEach(b=>{
@@ -360,13 +428,9 @@ function renderDashboardTH() {
         });
     }
 
-    // Barras de beneficios
     barras(conteo, total||1, 'graficaBeneficiosTH');
-
-    // Ranking de servidores más activos
     renderRankingServidores(aplicarFiltroFecha(historicoPermisosEquipo,'filtroTHDesde','filtroTHHasta'));
 
-    // Tabla
     tbodyHistoricoTH.innerHTML = [...histFiltrado]
         .sort((a,b)=>new Date(b.Created||0)-new Date(a.Created||0))
         .map(serverRow).join('') ||
@@ -425,15 +489,9 @@ function abrirPopup(b) {
     beneficioSeleccionado = b;
     document.getElementById('lblTituloPopup').innerText = b.titulo;
     document.getElementById('lblAnticipacion').innerHTML = `⏰ <strong>Mínimo ${b.diasAntelacion} días de anticipación.</strong><br><span style="display:block;margin-top:8px;font-size:12px;color:#475569;font-weight:400;line-height:1.5">${b.hint}</span>`;
-
-    // Etiqueta de fecha: neutra para todos los beneficios
     document.getElementById('lblFechaDisfrute').innerText = "Fecha de la Solicitud";
-
-    // Campo de hora: solo visible para citas médicas
     const wrapHora = document.getElementById('wrapperHoraCita');
-    if(esCitaMedica(b)) { mostrarEl(wrapHora); }
-    else { ocultarEl(wrapHora); }
-
+    if(esCitaMedica(b)) { mostrarEl(wrapHora); } else { ocultarEl(wrapHora); }
     const ws=document.getElementById('wrapperSoportes'), la=document.getElementById('lblAlertaSoporte');
     if(b.requiereAdjunto){mostrarEl(ws);mostrarEl(la);}else{ocultarEl(ws);ocultarEl(la);}
     document.getElementById('formSolicitud').reset();
@@ -448,8 +506,6 @@ async function procesarEnvioSolicitud() {
     const cedula=lblCedulaUsuario.innerText, beneficio=beneficioSeleccionado.titulo;
     const fecha=dtFechaInicio.value;
     let justificacion=txtJustificacion.value.trim();
-
-    // Si es cita médica, anteponer la hora en la justificación
     if(esCitaMedica(beneficioSeleccionado)) {
         const hora = document.getElementById('inputHoraCita')?.value;
         if(hora) justificacion = `Hora de la cita: ${hora}\n${justificacion}`;
@@ -473,7 +529,9 @@ async function procesarEnvioSolicitud() {
 }
 
 function cerrarSesion() {
-    permisosUsuario=[]; listaSubordinados=[]; historicoPermisosEquipo=[]; rolUsuarioActivo="EMPLEADO"; txtCedulaIngreso.value="";
+    permisosUsuario=[]; listaSubordinados=[]; historicoPermisosEquipo=[];
+    rolUsuarioActivo="EMPLEADO"; usadoEstaSemana=false; totalAnualUsado=0;
+    txtCedulaIngreso.value="";
     mostrarEl(tabTiquetera); mostrarEl(tabAdministrativos); ocultarEl(tabEquipo); ocultarEl(tabAnaliticaTH);
     tabTiquetera.className=TAB_ACTIVO; tabAdministrativos.className=TAB_INACTIVO;
     ocultarEl(headerUsuario); ocultarEl(seccionContenidoPortal); ocultarEl(seccionDashboardEquipo); ocultarEl(seccionAnaliticaTH);
