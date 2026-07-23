@@ -9,17 +9,13 @@ let permisosUsuario = [];
 let rolUsuarioActivo = "EMPLEADO";
 let listaSubordinados = [];
 let historicoPermisosEquipo = [];
-let usadoEstaSemana = false;
-let totalAnualUsado = 0;
+let fechasDisfrute = []; // fechas de disfrute aprobadas del servidor actual
 
 const URL_FLOW_CONSULTA = "https://54b407e9c34be36d9ed93dfaf5a04b.e5.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/416f1b2038a24f729b516db2c869774e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KjDEhk6b_cTv_TF3yc0B43OvtdKAJ4qfKPs27gOjBG8";
 const URL_FLOW_REGISTRO = "https://54b407e9c34be36d9ed93dfaf5a04b.e5.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/0545fde32b6648ef94ea9f6e01c70d6b/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=yQ3l3qxdl2oAS6KpgPBDYTOR88hwzGyxTwW29sVNJ6k";
 
-// Títulos excluidos del conteo anual de 15
-const EXCLUIDOS_CONTEO_ANUAL = [
-    "Día para Trabajo desde casa",
-    "Desconexión temprana"
-];
+// Títulos excluidos del conteo anual de 15 y del límite semanal
+const EXCLUIDOS_LIMITES = ["Día para Trabajo desde casa", "Desconexión temprana"];
 
 const gridBeneficios         = document.getElementById('gridBeneficios');
 const tabTiquetera           = document.getElementById('tabTiquetera');
@@ -77,8 +73,7 @@ async function procesarAutenticacion() {
             rolUsuarioActivo        = res.rol              || "EMPLEADO";
             listaSubordinados       = res.subordinados     || [];
             historicoPermisosEquipo = res.historicoEquipo  || [];
-            usadoEstaSemana         = res.usadoEstaSemana  || false;
-            totalAnualUsado         = res.totalAnualUsado  || 0;
+            fechasDisfrute          = res.fechasDisfrute   || [];
 
             const nombre = res.nombre || "Servidor Público";
             lblNombreUsuario.innerText = nombre;
@@ -145,7 +140,45 @@ function formatFecha(str) {
 }
 function getEstado(reg) { return (reg.Estado?.Value || reg.Estado || '').toString(); }
 function getNombre(cedula) { return listaSubordinados.find(s=>s.Title===cedula)?.NombreCompleto || cedula; }
-function esExcluidoConteoAnual(titulo) { return EXCLUIDOS_CONTEO_ANUAL.includes(titulo); }
+
+// Obtiene el lunes de la semana de una fecha dada
+function lunesDeSemana(fecha) {
+    const d = new Date(fecha);
+    const dia = d.getDay(); // 0=dom, 1=lun ... 6=sab
+    const diffLunes = dia === 0 ? -6 : 1 - dia;
+    d.setDate(d.getDate() + diffLunes);
+    d.setHours(0,0,0,0);
+    return d;
+}
+
+// Verifica si la fecha seleccionada cae en una semana que ya tiene beneficio aprobado
+// Excluye trabajo en casa y desconexión temprana del conteo
+function semanaYaTieneBeneficio(fechaSeleccionada) {
+    if(!fechaSeleccionada) return false;
+    const lunesSeleccionado = lunesDeSemana(fechaSeleccionada + 'T00:00:00').getTime();
+    const domingoSeleccionado = lunesSeleccionado + 6 * 86400000;
+
+    return fechasDisfrute.some(reg => {
+        // Excluir trabajo en casa y desconexión temprana
+        if(EXCLUIDOS_LIMITES.includes(reg.PermisoSolicitado)) return false;
+        const fechaDisfrute = reg.FechaSolicitud || reg.FechaInicio;
+        if(!fechaDisfrute) return false;
+        const ts = new Date(fechaDisfrute.includes('T') ? fechaDisfrute : fechaDisfrute+'T00:00:00').getTime();
+        return ts >= lunesSeleccionado && ts <= domingoSeleccionado;
+    });
+}
+
+// Cuenta beneficios aprobados en el año actual excluyendo los excluidos
+function contarBeneficiosAnuales() {
+    const inicioAnio = new Date(new Date().getFullYear(), 0, 1).getTime();
+    return fechasDisfrute.filter(reg => {
+        if(EXCLUIDOS_LIMITES.includes(reg.PermisoSolicitado)) return false;
+        const fecha = reg.FechaSolicitud || reg.FechaInicio;
+        if(!fecha) return false;
+        const ts = new Date(fecha.includes('T') ? fecha : fecha+'T00:00:00').getTime();
+        return ts >= inicioAnio;
+    }).length;
+}
 
 function badge(estado) {
     const e = estado.toLowerCase();
@@ -207,85 +240,60 @@ function barras(conteo, total, contenedorId) {
 }
 
 // ==========================================
-// GRID BENEFICIOS — con las 3 reglas nuevas
+// GRID BENEFICIOS
 // ==========================================
 function renderGrid() {
     gridBeneficios.innerHTML = '';
 
-    // Banner de límite semanal — solo aplica en tiquetera
-    if(tipoActual === "Tiquetera") {
-        const bannerSemana = document.getElementById('bannerLimiteSemanal');
-        if(bannerSemana) {
-            if(usadoEstaSemana) mostrarEl(bannerSemana);
-            else ocultarEl(bannerSemana);
-        }
-
-        // Banner de límite anual
-        const bannerAnual = document.getElementById('bannerLimiteAnual');
-        if(bannerAnual) {
-            const restantes = 15 - totalAnualUsado;
-            if(totalAnualUsado >= 15) {
-                bannerAnual.innerHTML = `🚫 Has alcanzado el límite anual de <strong>15 beneficios</strong>. No puedes radicar más solicitudes de tiquetera emocional este año.`;
-                bannerAnual.style.background = '#fef2f2';
-                bannerAnual.style.borderColor = '#fecaca';
-                bannerAnual.style.color = '#b91c1c';
-                mostrarEl(bannerAnual);
-            } else if(restantes <= 3) {
-                bannerAnual.innerHTML = `⚠️ Te quedan <strong>${restantes} beneficio${restantes===1?'':'s'}</strong> disponibles de tu cuota anual de 15. (Trabajo desde casa y Desconexión temprana no cuentan en este límite.)`;
-                bannerAnual.style.background = '#fffbeb';
-                bannerAnual.style.borderColor = '#fde68a';
-                bannerAnual.style.color = '#b45309';
-                mostrarEl(bannerAnual);
-            } else {
-                ocultarEl(bannerAnual);
-            }
+    // Mostrar cuota anual restante si aplica
+    const totalAnual = contarBeneficiosAnuales();
+    const bannerAnual = document.getElementById('bannerLimiteAnual');
+    if(bannerAnual && tipoActual === "Tiquetera") {
+        const restantes = 15 - totalAnual;
+        if(totalAnual >= 15) {
+            bannerAnual.innerHTML = `🚫 Has alcanzado el límite anual de <strong>15 beneficios</strong>. No puedes radicar más solicitudes de tiquetera emocional este año.`;
+            bannerAnual.style.cssText = "display:block;margin-bottom:16px;padding:14px 18px;border-radius:14px;border:1px solid #fecaca;background:#fef2f2;color:#b91c1c;font-size:13px;font-weight:600;line-height:1.5";
+        } else if(restantes <= 3) {
+            bannerAnual.innerHTML = `⚠️ Te quedan <strong>${restantes} beneficio${restantes===1?'':'s'}</strong> disponibles de tu cuota anual de 15. (Trabajo desde casa y Desconexión temprana no cuentan en este límite.)`;
+            bannerAnual.style.cssText = "display:block;margin-bottom:16px;padding:14px 18px;border-radius:14px;border:1px solid #fde68a;background:#fffbeb;color:#b45309;font-size:13px;font-weight:600;line-height:1.5";
+        } else {
+            ocultarEl(bannerAnual);
         }
     }
 
     beneficios.filter(b=>b.tipo===tipoActual).forEach(b => {
         const regla = permisosUsuario.find(p=>p.Titulo===b.titulo);
-        let disponible=true, btn="Solicitar", badge2="", motivo="";
+        let disponible=true, btn="Solicitar", badge2="";
 
-        if(tipoActual === "Tiquetera") {
-            // Regla 1: límite semanal (no aplica a excluidos)
-            if(usadoEstaSemana && !esExcluidoConteoAnual(b.titulo)) {
-                disponible = false;
-                btn = "Límite semanal alcanzado";
-                motivo = "semanal";
-            }
-
-            // Regla 2: límite anual de 15 (no aplica a excluidos)
-            if(totalAnualUsado >= 15 && !esExcluidoConteoAnual(b.titulo)) {
-                disponible = false;
-                btn = "Límite anual alcanzado (Máx 15)";
-                motivo = "anual15";
-            }
+        // Regla límite anual de 15 (no aplica a excluidos)
+        if(tipoActual === "Tiquetera" && totalAnual >= 15 && !EXCLUIDOS_LIMITES.includes(b.titulo)) {
+            disponible = false;
+            btn = "Límite anual alcanzado (Máx 15)";
         }
 
-        // Reglas individuales por beneficio (solo si aún está disponible)
+        // Reglas individuales por beneficio
         if(disponible) {
             if(regla) {
                 const v = parseInt(regla.VecesUsado)||0;
                 badge2 = `<span class="text-[11px] text-slate-400 font-medium block mt-1">Usado este año: ${v} vez/veces</span>`;
-                if(regla.ReglaBloqueo==="Anual" && v>=1)         { disponible=false; btn="Ya utilizado este año"; }
-                if(regla.ReglaBloqueo==="Semestral" && v>=1)      { disponible=false; btn="Límite semestral alcanzado"; }
-                if(regla.ReglaBloqueo==="Mensual" && v>=1)        { disponible=false; btn="Límite mensual alcanzado"; }
+                if(regla.ReglaBloqueo==="Anual"          && v>=1) { disponible=false; btn="Ya utilizado este año"; }
+                if(regla.ReglaBloqueo==="Semestral"      && v>=1) { disponible=false; btn="Límite semestral alcanzado"; }
+                if(regla.ReglaBloqueo==="Mensual"        && v>=1) { disponible=false; btn="Límite mensual alcanzado"; }
                 if(regla.ReglaBloqueo==="Anual_Limite_2" && v>=2) { disponible=false; btn="Límite anual alcanzado (Máx 2)"; }
                 if(regla.ReglaBloqueo==="Anual_Limite_2" && v===1) badge2 += `<span class="text-[10px] text-amber-500 font-semibold block mt-0.5">⚠️ Te queda 1 solicitud disponible</span>`;
             } else if(tipoActual==="Tiquetera") {
                 disponible=false; btn="No Habilitado";
             }
         } else if(regla) {
-            // Mostrar conteo aunque esté bloqueado por regla global
             const v = parseInt(regla.VecesUsado)||0;
             badge2 = `<span class="text-[11px] text-slate-400 font-medium block mt-1">Usado este año: ${v} vez/veces</span>`;
         }
 
-        // Badge de cuota anual restante (solo para beneficios que cuentan en el límite)
-        if(tipoActual === "Tiquetera" && !esExcluidoConteoAnual(b.titulo) && disponible) {
-            const restantes = 15 - totalAnualUsado;
+        // Indicador de cuota anual restante
+        if(tipoActual === "Tiquetera" && disponible && !EXCLUIDOS_LIMITES.includes(b.titulo)) {
+            const restantes = 15 - totalAnual;
             if(restantes <= 3 && restantes > 0) {
-                badge2 += `<span class="text-[10px] text-amber-500 font-semibold block mt-0.5">📊 Cuota anual: ${totalAnualUsado}/15 usados</span>`;
+                badge2 += `<span class="text-[10px] text-amber-500 font-semibold block mt-0.5">📊 Cuota anual: ${totalAnual}/15 usados</span>`;
             }
         }
 
@@ -308,11 +316,9 @@ function renderGrid() {
 function renderDashboardEquipo() {
     let hist = historicoPermisosEquipo;
     hist = aplicarFiltroFecha(hist, 'filtroEquipoDesde', 'filtroEquipoHasta');
-
-    const busq  = (document.getElementById('filtroEquipoBusqueda')?.value||'').toLowerCase();
-    const est   = (document.getElementById('filtroEquipoEstado')?.value||'').toLowerCase();
-    const ben   = document.getElementById('filtroEquipoBeneficio')?.value||'';
-
+    const busq = (document.getElementById('filtroEquipoBusqueda')?.value||'').toLowerCase();
+    const est  = (document.getElementById('filtroEquipoEstado')?.value||'').toLowerCase();
+    const ben  = document.getElementById('filtroEquipoBeneficio')?.value||'';
     const histFiltrado = hist.filter(r => {
         const nom = getNombre(r.Title).toLowerCase();
         const ced = (r.Title||'').toLowerCase();
@@ -320,35 +326,29 @@ function renderDashboardEquipo() {
             && (!est  || getEstado(r).toLowerCase()===est)
             && (!ben  || r.PermisoSolicitado===ben);
     });
-
-    const total   = histFiltrado.length;
-    const aprob   = histFiltrado.filter(r=>getEstado(r).toLowerCase()==='aprobado').length;
-    const rech    = histFiltrado.filter(r=>getEstado(r).toLowerCase()==='rechazado').length;
-    const pend    = total - aprob - rech;
-    const tasa    = total>0 ? Math.round(aprob/total*100)+'%' : '—';
-
+    const total = histFiltrado.length;
+    const aprob = histFiltrado.filter(r=>getEstado(r).toLowerCase()==='aprobado').length;
+    const rech  = histFiltrado.filter(r=>getEstado(r).toLowerCase()==='rechazado').length;
+    const pend  = total - aprob - rech;
+    const tasa  = total>0 ? Math.round(aprob/total*100)+'%' : '—';
     document.getElementById('kpiTotalEquipo').innerText          = listaSubordinados.length;
     document.getElementById('kpiTotalHistoricoEquipo').innerText = total;
     document.getElementById('kpiAprobadosEquipo').innerText      = aprob;
     document.getElementById('kpiRechazadosEquipo').innerText     = rech;
     document.getElementById('kpiPendientesEquipo').innerText     = pend;
     document.getElementById('kpiTasaAprobacion').innerText       = tasa;
-
     const conteo = {};
     histFiltrado.forEach(r => { const k=r.PermisoSolicitado||'Sin definir'; conteo[k]=(conteo[k]||0)+1; });
     const top = Object.entries(conteo).sort((a,b)=>b[1]-a[1])[0];
     document.getElementById('kpiTopTramiteEquipo').innerText = top ? `${top[0]} (${top[1]})` : '—';
-
     const selBen = document.getElementById('filtroEquipoBeneficio');
     if(selBen && selBen.options.length <= 1) {
         [...new Set(historicoPermisosEquipo.map(r=>r.PermisoSolicitado).filter(Boolean))].sort().forEach(b => {
             const o = document.createElement('option'); o.value=b; o.innerText=b; selBen.appendChild(o);
         });
     }
-
     barras(conteo, total||1, 'graficaBeneficiosEquipo');
     renderTarjetasServidores(aplicarFiltroFecha(historicoPermisosEquipo, 'filtroEquipoDesde', 'filtroEquipoHasta'));
-
     tbodyHistoricoEquipo.innerHTML = [...histFiltrado]
         .sort((a,b)=>new Date(b.Created||0)-new Date(a.Created||0))
         .map(serverRow).join('') ||
@@ -388,11 +388,9 @@ function renderTarjetasServidores(hist) {
 function renderDashboardTH() {
     let hist = historicoPermisosEquipo;
     hist = aplicarFiltroFecha(hist, 'filtroTHDesde', 'filtroTHHasta');
-
     const busq = (document.getElementById('filtroTHBusqueda')?.value||'').toLowerCase();
     const est  = (document.getElementById('filtroTHEstado')?.value||'').toLowerCase();
     const ben  = document.getElementById('filtroTHBeneficio')?.value||'';
-
     const histFiltrado = hist.filter(r => {
         const nom = getNombre(r.Title).toLowerCase();
         const ced = (r.Title||'').toLowerCase();
@@ -400,14 +398,12 @@ function renderDashboardTH() {
             && (!est  || getEstado(r).toLowerCase()===est)
             && (!ben  || r.PermisoSolicitado===ben);
     });
-
     const total = histFiltrado.length;
     const aprob = histFiltrado.filter(r=>getEstado(r).toLowerCase()==='aprobado').length;
     const rech  = histFiltrado.filter(r=>getEstado(r).toLowerCase()==='rechazado').length;
     const pend  = total - aprob - rech;
     const tasa  = total>0 ? Math.round(aprob/total*100)+'%' : '—';
     const sevsActivos = new Set(histFiltrado.map(r=>r.Title)).size;
-
     document.getElementById('kpiThTotalServidores').innerText  = listaSubordinados.length;
     document.getElementById('kpiThServsActivos').innerText     = sevsActivos;
     document.getElementById('kpiThTotalTramites').innerText    = total;
@@ -415,22 +411,18 @@ function renderDashboardTH() {
     document.getElementById('kpiThRechazados').innerText       = rech;
     document.getElementById('kpiThPendientes').innerText       = pend;
     document.getElementById('kpiThTasa').innerText             = tasa;
-
     const conteo = {};
     histFiltrado.forEach(r => { const k=r.PermisoSolicitado||'Sin definir'; conteo[k]=(conteo[k]||0)+1; });
     const top = Object.entries(conteo).sort((a,b)=>b[1]-a[1])[0];
     document.getElementById('kpiThTopTramite').innerText = top ? `${top[0]} (${top[1]})` : '—';
-
     const selBenTH = document.getElementById('filtroTHBeneficio');
     if(selBenTH && selBenTH.options.length<=1) {
         [...new Set(historicoPermisosEquipo.map(r=>r.PermisoSolicitado).filter(Boolean))].sort().forEach(b=>{
             const o=document.createElement('option'); o.value=b; o.innerText=b; selBenTH.appendChild(o);
         });
     }
-
     barras(conteo, total||1, 'graficaBeneficiosTH');
     renderRankingServidores(aplicarFiltroFecha(historicoPermisosEquipo,'filtroTHDesde','filtroTHHasta'));
-
     tbodyHistoricoTH.innerHTML = [...histFiltrado]
         .sort((a,b)=>new Date(b.Created||0)-new Date(a.Created||0))
         .map(serverRow).join('') ||
@@ -472,9 +464,6 @@ function renderRankingServidores(hist) {
         }).join('');
 }
 
-// ==========================================
-// EXPONER FILTROS GLOBALMENTE
-// ==========================================
 window.aplicarFiltrosEquipo = function() { renderDashboardEquipo(); };
 window.aplicarFiltrosTH     = function() { renderDashboardTH(); };
 
@@ -494,6 +483,7 @@ function abrirPopup(b) {
     if(esCitaMedica(b)) { mostrarEl(wrapHora); } else { ocultarEl(wrapHora); }
     const ws=document.getElementById('wrapperSoportes'), la=document.getElementById('lblAlertaSoporte');
     if(b.requiereAdjunto){mostrarEl(ws);mostrarEl(la);}else{ocultarEl(ws);ocultarEl(la);}
+    ocultarEl(document.getElementById('lblAlertaSemana'));
     document.getElementById('formSolicitud').reset();
     document.getElementById('lblFileStatus').innerText="📄 Selecciona o arrastra tu archivo (PDF, PNG, JPG)";
     ocultarEl(document.getElementById('lblAlertaFecha'));
@@ -530,8 +520,7 @@ async function procesarEnvioSolicitud() {
 
 function cerrarSesion() {
     permisosUsuario=[]; listaSubordinados=[]; historicoPermisosEquipo=[];
-    rolUsuarioActivo="EMPLEADO"; usadoEstaSemana=false; totalAnualUsado=0;
-    txtCedulaIngreso.value="";
+    fechasDisfrute=[]; rolUsuarioActivo="EMPLEADO"; txtCedulaIngreso.value="";
     mostrarEl(tabTiquetera); mostrarEl(tabAdministrativos); ocultarEl(tabEquipo); ocultarEl(tabAnaliticaTH);
     tabTiquetera.className=TAB_ACTIVO; tabAdministrativos.className=TAB_INACTIVO;
     ocultarEl(headerUsuario); ocultarEl(seccionContenidoPortal); ocultarEl(seccionDashboardEquipo); ocultarEl(seccionAnaliticaTH);
@@ -539,22 +528,44 @@ function cerrarSesion() {
 }
 
 function setupFormValidation() {
-    const laf=document.getElementById('lblAlertaFecha');
+    const laf = document.getElementById('lblAlertaFecha');
+    const las  = document.getElementById('lblAlertaSemana');
     attSoportes.addEventListener('change', e=>{ if(e.target.files.length>0) document.getElementById('lblFileStatus').innerText=`✅ ${e.target.files[0].name}`; validar(); });
     [dtFechaInicio,txtJustificacion].forEach(el=>el.addEventListener('input',validar));
     document.getElementById('inputHoraCita')?.addEventListener('input', validar);
+
     function validar() {
         if(!beneficioSeleccionado) return;
-        const jv=txtJustificacion.value.trim().length>0;
-        let fv=false;
+        const jv = txtJustificacion.value.trim().length > 0;
+        let fv = false;
+        let semanaOk = true;
+
         if(dtFechaInicio.value) {
-            const hoy=new Date(); hoy.setHours(0,0,0,0);
-            fv=true;
-            Math.ceil((new Date(dtFechaInicio.value+'T00:00:00')-hoy)/86400000)<beneficioSeleccionado.diasAntelacion ? mostrarEl(laf) : ocultarEl(laf);
+            const hoy = new Date(); hoy.setHours(0,0,0,0);
+            const fechaSel = new Date(dtFechaInicio.value+'T00:00:00');
+            const diffDias = Math.ceil((fechaSel - hoy) / 86400000);
+            fv = true;
+            diffDias < beneficioSeleccionado.diasAntelacion ? mostrarEl(laf) : ocultarEl(laf);
+
+            // Validar límite semanal solo para tiquetera y beneficios no excluidos
+            if(beneficioSeleccionado.tipo === "Tiquetera" && !EXCLUIDOS_LIMITES.includes(beneficioSeleccionado.titulo)) {
+                if(semanaYaTieneBeneficio(dtFechaInicio.value)) {
+                    semanaOk = false;
+                    if(las) {
+                        las.innerText = "⚠️ Ya tienes un beneficio aprobado para esta semana. Solo puedes disfrutar 1 beneficio por semana. Selecciona una fecha en otra semana.";
+                        mostrarEl(las);
+                    }
+                } else {
+                    semanaOk = true;
+                    if(las) ocultarEl(las);
+                }
+            }
         }
+
         const horaVal = esCitaMedica(beneficioSeleccionado)
             ? (document.getElementById('inputHoraCita')?.value?.trim().length > 0)
             : true;
-        btnEnviarSolicitud.disabled=!(jv&&fv&&horaVal&&(!beneficioSeleccionado.requiereAdjunto||attSoportes.files.length>0));
+
+        btnEnviarSolicitud.disabled = !(jv && fv && semanaOk && horaVal && (!beneficioSeleccionado.requiereAdjunto || attSoportes.files.length > 0));
     }
 }
