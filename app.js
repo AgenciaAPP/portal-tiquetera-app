@@ -20,11 +20,13 @@ const EXCLUIDOS_LIMITES = ["Día para Trabajo desde casa", "Desconexión tempran
 const gridBeneficios         = document.getElementById('gridBeneficios');
 const tabTiquetera           = document.getElementById('tabTiquetera');
 const tabAdministrativos     = document.getElementById('tabAdministrativos');
+const tabHistorial           = document.getElementById('tabHistorial');
 const tabEquipo              = document.getElementById('tabEquipo');
 const tabAnaliticaTH         = document.getElementById('tabAnaliticaTH');
 const modal                  = document.getElementById('modalBeneficio');
 const seccionLogin           = document.getElementById('seccionLogin');
 const seccionContenidoPortal = document.getElementById('seccionContenidoPortal');
+const seccionHistorial       = document.getElementById('seccionHistorial');
 const seccionDashboardEquipo = document.getElementById('seccionDashboardEquipo');
 const seccionAnaliticaTH     = document.getElementById('seccionAnaliticaTH');
 const btnValidarCedula       = document.getElementById('btnValidarCedula');
@@ -99,12 +101,18 @@ async function procesarAutenticacion() {
 
 function evaluarRolYActivarVista() {
     [tabTiquetera, tabAdministrativos, tabEquipo, tabAnaliticaTH].forEach(t => ocultarEl(t));
+    ocultarEl(tabHistorial);
+
     if(rolUsuarioActivo === "ADMIN_TH") {
         mostrarEl(tabAnaliticaTH); activarTab('AnaliticaTH');
     } else if(rolUsuarioActivo === "JEFE" || rolUsuarioActivo === "SUPER_JEFE") {
-        mostrarEl(tabTiquetera); mostrarEl(tabAdministrativos); mostrarEl(tabEquipo); activarTab('Tiquetera');
+        mostrarEl(tabTiquetera); mostrarEl(tabAdministrativos);
+        mostrarEl(tabHistorial); mostrarEl(tabEquipo);
+        activarTab('Tiquetera');
     } else {
-        mostrarEl(tabTiquetera); mostrarEl(tabAdministrativos); activarTab('Tiquetera');
+        mostrarEl(tabTiquetera); mostrarEl(tabAdministrativos);
+        mostrarEl(tabHistorial);
+        activarTab('Tiquetera');
     }
 }
 
@@ -114,17 +122,19 @@ const TAB_INACTIVO = "tab-inactivo font-heading whitespace-nowrap py-4 px-1 text
 function setupTabs() {
     tabTiquetera.addEventListener('click', () => activarTab('Tiquetera'));
     tabAdministrativos.addEventListener('click', () => activarTab('Administrativos'));
+    tabHistorial.addEventListener('click', () => activarTab('Historial'));
     tabEquipo.addEventListener('click', () => activarTab('Equipo'));
     tabAnaliticaTH.addEventListener('click', () => activarTab('AnaliticaTH'));
 }
 
 function activarTab(tipo) {
     tipoActual = tipo;
-    [tabTiquetera, tabAdministrativos, tabEquipo, tabAnaliticaTH].forEach(t => { if(t) t.className = TAB_INACTIVO; });
-    ocultarEl(gridBeneficios); ocultarEl(seccionDashboardEquipo); ocultarEl(seccionAnaliticaTH);
+    [tabTiquetera, tabAdministrativos, tabHistorial, tabEquipo, tabAnaliticaTH].forEach(t => { if(t) t.className = TAB_INACTIVO; });
+    ocultarEl(gridBeneficios); ocultarEl(seccionHistorial); ocultarEl(seccionDashboardEquipo); ocultarEl(seccionAnaliticaTH);
     switch(tipo) {
         case 'Tiquetera':      tabTiquetera.className = TAB_ACTIVO; mostrarEl(gridBeneficios); renderGrid(); break;
         case 'Administrativos':tabAdministrativos.className = TAB_ACTIVO; mostrarEl(gridBeneficios); renderGrid(); break;
+        case 'Historial':      tabHistorial.className = TAB_ACTIVO; mostrarEl(seccionHistorial); renderHistorial(); break;
         case 'Equipo':         tabEquipo.className = TAB_ACTIVO; mostrarEl(seccionDashboardEquipo); renderDashboardEquipo(); break;
         case 'AnaliticaTH':    tabAnaliticaTH.className = TAB_ACTIVO; mostrarEl(seccionAnaliticaTH); renderDashboardTH(); break;
     }
@@ -400,8 +410,66 @@ function renderGrid() {
 }
 
 // ==========================================
-// DASHBOARD MI EQUIPO
+// RENDER: MI HISTORIAL PERSONAL
 // ==========================================
+function renderHistorial() {
+    const totalAnual  = contarBeneficiosAnuales();
+    const aprobados   = fechasDisfrute.filter(r => getEstado(r).toLowerCase() === 'aprobado').length;
+    const rechazados  = fechasDisfrute.filter(r => getEstado(r).toLowerCase() === 'rechazado').length;
+    const pendientes  = fechasDisfrute.length - aprobados - rechazados;
+    const restantes   = Math.max(0, 15 - totalAnual);
+    const pct         = Math.min(100, Math.round((totalAnual / 15) * 100));
+
+    // KPIs
+    document.getElementById('kpiHistUsados').innerText     = totalAnual;
+    document.getElementById('kpiHistAprobados').innerText  = aprobados;
+    document.getElementById('kpiHistPendientes').innerText = pendientes;
+    document.getElementById('kpiHistRechazados').innerText = rechazados;
+
+    // Barra de cuota
+    document.getElementById('kpiHistCuotaTexto').innerText = `${totalAnual}/15`;
+    document.getElementById('barraHistCuota').style.width  = `${pct}%`;
+    document.getElementById('barraHistCuota').style.background =
+        totalAnual >= 15 ? '#e53935' : totalAnual >= 12 ? 'linear-gradient(90deg,#b7920a,#e53935)' : 'linear-gradient(90deg,#1E1C66,#00A6B8)';
+
+    const disponEl = document.getElementById('kpiHistDisponibles');
+    if(disponEl) {
+        disponEl.innerText = restantes > 0 ? `${restantes} disponibles` : '¡Cuota agotada!';
+        disponEl.style.color = restantes === 0 ? '#e53935' : restantes <= 3 ? '#b7920a' : '#00A6B8';
+    }
+
+    // Tabla
+    const tbody = document.getElementById('tbodyHistorial');
+    if(!tbody) return;
+
+    const ordenados = [...fechasDisfrute].sort((a,b) => new Date(b.Created||0) - new Date(a.Created||0));
+
+    if(ordenados.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="padding:32px;text-align:center;font-size:11px;color:#b7b7b7;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">
+            Aún no tienes solicitudes radicadas.
+        </td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = ordenados.map(reg => {
+        const cuentaEnCuota = !EXCLUIDOS_LIMITES.includes(reg.PermisoSolicitado);
+        const cuentaBadge = cuentaEnCuota
+            ? `<span style="display:inline-flex;align-items:center;padding:2px 10px;border-radius:30px;font-size:10px;font-weight:700;background:#e8eaf6;color:#1E1C66;border:1px solid #c5cae9">✔ Sí cuenta</span>`
+            : `<span style="display:inline-flex;align-items:center;padding:2px 10px;border-radius:30px;font-size:10px;font-weight:700;background:#e0f7fa;color:#00838F;border:1px solid #b2ebf2">— No cuenta</span>`;
+
+        return `<tr style="border-bottom:1px solid #ECEFF1;transition:background 0.15s" onmouseover="this.style.background='#f8f9ff'" onmouseout="this.style.background=''">
+            <td style="padding:12px 16px;font-size:12px;font-weight:600;color:#1E1C66;max-width:220px">
+                <span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${reg.PermisoSolicitado||''}">${reg.PermisoSolicitado||'—'}</span>
+            </td>
+            <td style="padding:12px 16px;font-size:11px;color:#616161;white-space:nowrap">${formatFecha(reg.Created)}</td>
+            <td style="padding:12px 16px;font-size:11px;color:#616161;white-space:nowrap">${formatFecha(reg.FechaSolicitud||reg.FechaInicio)}</td>
+            <td style="padding:12px 16px">${cuentaBadge}</td>
+            <td style="padding:12px 16px">${badge(getEstado(reg))}</td>
+        </tr>`;
+    }).join('');
+}
+
+
 function renderDashboardEquipo() {
     let hist = historicoPermisosEquipo;
     hist = aplicarFiltroFecha(hist, 'filtroEquipoDesde', 'filtroEquipoHasta');
@@ -610,9 +678,12 @@ async function procesarEnvioSolicitud() {
 function cerrarSesion() {
     permisosUsuario=[]; listaSubordinados=[]; historicoPermisosEquipo=[];
     fechasDisfrute=[]; rolUsuarioActivo="EMPLEADO"; txtCedulaIngreso.value="";
-    mostrarEl(tabTiquetera); mostrarEl(tabAdministrativos); ocultarEl(tabEquipo); ocultarEl(tabAnaliticaTH);
+    mostrarEl(tabTiquetera); mostrarEl(tabAdministrativos); mostrarEl(tabHistorial);
+    ocultarEl(tabEquipo); ocultarEl(tabAnaliticaTH);
     tabTiquetera.className=TAB_ACTIVO; tabAdministrativos.className=TAB_INACTIVO;
-    ocultarEl(headerUsuario); ocultarEl(seccionContenidoPortal); ocultarEl(seccionDashboardEquipo); ocultarEl(seccionAnaliticaTH);
+    tabHistorial.className=TAB_INACTIVO;
+    ocultarEl(headerUsuario); ocultarEl(seccionContenidoPortal);
+    ocultarEl(seccionHistorial); ocultarEl(seccionDashboardEquipo); ocultarEl(seccionAnaliticaTH);
     mostrarEl(gridBeneficios); mostrarEl(seccionLogin);
 }
 
