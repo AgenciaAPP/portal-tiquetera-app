@@ -142,42 +142,114 @@ function getEstado(reg) { return (reg.Estado?.Value || reg.Estado || '').toStrin
 function getNombre(cedula) { return listaSubordinados.find(s=>s.Title===cedula)?.NombreCompleto || cedula; }
 
 // Obtiene el lunes de la semana de una fecha dada
-function lunesDeSemana(fecha) {
-    const d = new Date(fecha);
-    const dia = d.getDay(); // 0=dom, 1=lun ... 6=sab
+// ==========================================
+// HELPERS DE FECHAS Y REGLAS
+// ==========================================
+
+function tsDeReg(reg) {
+    const f = reg.FechaSolicitud || reg.FechaInicio;
+    if(!f) return null;
+    return new Date(f.includes('T') ? f : f+'T00:00:00').getTime();
+}
+
+function lunesDeSemana(fechaStr) {
+    const d = new Date(fechaStr.includes('T') ? fechaStr : fechaStr+'T00:00:00');
+    const dia = d.getDay();
     const diffLunes = dia === 0 ? -6 : 1 - dia;
     d.setDate(d.getDate() + diffLunes);
     d.setHours(0,0,0,0);
     return d;
 }
 
-// Verifica si la fecha seleccionada cae en una semana que ya tiene beneficio aprobado
-// Excluye trabajo en casa y desconexión temprana del conteo
-function semanaYaTieneBeneficio(fechaSeleccionada) {
-    if(!fechaSeleccionada) return false;
-    const lunesSeleccionado = lunesDeSemana(fechaSeleccionada + 'T00:00:00').getTime();
-    const domingoSeleccionado = lunesSeleccionado + 6 * 86400000;
-
-    return fechasDisfrute.some(reg => {
-        // Excluir trabajo en casa y desconexión temprana
-        if(EXCLUIDOS_LIMITES.includes(reg.PermisoSolicitado)) return false;
-        const fechaDisfrute = reg.FechaSolicitud || reg.FechaInicio;
-        if(!fechaDisfrute) return false;
-        const ts = new Date(fechaDisfrute.includes('T') ? fechaDisfrute : fechaDisfrute+'T00:00:00').getTime();
-        return ts >= lunesSeleccionado && ts <= domingoSeleccionado;
-    });
+// Registros aprobados del servidor filtrados por título (excluye los excluidos si se pide)
+function registrosPorTitulo(titulo) {
+    return fechasDisfrute.filter(r => r.PermisoSolicitado === titulo);
 }
 
-// Cuenta beneficios aprobados en el año actual excluyendo los excluidos
+// Cuenta beneficios aprobados en el año actual excluyendo trabajo en casa y desconexión
 function contarBeneficiosAnuales() {
     const inicioAnio = new Date(new Date().getFullYear(), 0, 1).getTime();
     return fechasDisfrute.filter(reg => {
         if(EXCLUIDOS_LIMITES.includes(reg.PermisoSolicitado)) return false;
-        const fecha = reg.FechaSolicitud || reg.FechaInicio;
-        if(!fecha) return false;
-        const ts = new Date(fecha.includes('T') ? fecha : fecha+'T00:00:00').getTime();
-        return ts >= inicioAnio;
+        const ts = tsDeReg(reg);
+        return ts !== null && ts >= inicioAnio;
     }).length;
+}
+
+// Evalúa si la fecha elegida viola la regla del beneficio
+// Retorna null si está OK, o un string con el mensaje de error
+function evaluarReglaFecha(beneficio, regla, fechaStr) {
+    if(!fechaStr) return null;
+    const fechaSel = new Date(fechaStr+'T00:00:00');
+    const titulo = beneficio.titulo;
+    const regs = registrosPorTitulo(titulo);
+
+    // SEMANAL — aplica a todos los beneficios de tiquetera excepto excluidos
+    if(beneficio.tipo === "Tiquetera" && !EXCLUIDOS_LIMITES.includes(titulo)) {
+        const lunesSel = lunesDeSemana(fechaStr).getTime();
+        const domSel   = lunesSel + 6 * 86400000;
+        const conflicto = fechasDisfrute.find(r => {
+            if(EXCLUIDOS_LIMITES.includes(r.PermisoSolicitado)) return false;
+            const ts = tsDeReg(r);
+            return ts !== null && ts >= lunesSel && ts <= domSel;
+        });
+        if(conflicto) {
+            const lunesNext = new Date(lunesSel + 7*86400000);
+            return `📅 Ya tienes un beneficio aprobado para esa semana. Solo puedes disfrutar 1 beneficio por semana. Selecciona una fecha a partir del ${lunesNext.toLocaleDateString('es-CO',{day:'2-digit',month:'long'})}.`;
+        }
+    }
+
+    if(!regla) return null;
+    const rb = regla.ReglaBloqueo;
+
+    // MENSUAL
+    if(rb === "Mensual") {
+        const mismoMes = regs.find(r => {
+            const ts = tsDeReg(r);
+            if(ts === null) return false;
+            const d = new Date(ts);
+            return d.getFullYear() === fechaSel.getFullYear() && d.getMonth() === fechaSel.getMonth();
+        });
+        if(mismoMes) {
+            const mesNombre = new Date(fechaSel.getFullYear(), fechaSel.getMonth()+1, 1)
+                .toLocaleDateString('es-CO', {month:'long', year:'numeric'});
+            return `📆 Ya tienes "${titulo}" solicitado para ${fechaSel.toLocaleDateString('es-CO',{month:'long'})}. Puedes pedirlo a partir de ${mesNombre}.`;
+        }
+    }
+
+    // SEMESTRAL
+    if(rb === "Semestral") {
+        const semestreSel = fechaSel.getMonth() < 6 ? 1 : 2;
+        const anioSel = fechaSel.getFullYear();
+        const mismoSemestre = regs.find(r => {
+            const ts = tsDeReg(r);
+            if(ts === null) return false;
+            const d = new Date(ts);
+            const sem = d.getMonth() < 6 ? 1 : 2;
+            return d.getFullYear() === anioSel && sem === semestreSel;
+        });
+        if(mismoSemestre) {
+            const inicioSigSem = semestreSel === 1
+                ? `1 de julio de ${anioSel}`
+                : `1 de enero de ${anioSel+1}`;
+            return `📆 Ya usaste este beneficio en el ${semestreSel === 1 ? 'primer' : 'segundo'} semestre. Puedes pedirlo a partir del ${inicioSigSem}.`;
+        }
+    }
+
+    // ANUAL_LIMITE_2
+    if(rb === "Anual_Limite_2") {
+        const anioSel = fechaSel.getFullYear();
+        const enEsteAnio = regs.filter(r => {
+            const ts = tsDeReg(r);
+            if(ts === null) return false;
+            return new Date(ts).getFullYear() === anioSel;
+        });
+        if(enEsteAnio.length >= 2) {
+            return `🚫 Ya usaste este beneficio 2 veces este año. No puedes volver a solicitarlo hasta el próximo año.`;
+        }
+    }
+
+    return null; // Sin conflicto
 }
 
 function badge(estado) {
@@ -272,21 +344,37 @@ function renderGrid() {
         }
 
         // Reglas individuales por beneficio
+        // Mensual y Semestral NO se bloquean en la card — se evalúan en el popup al elegir fecha
         if(disponible) {
             if(regla) {
                 const v = parseInt(regla.VecesUsado)||0;
-                badge2 = `<span class="text-[11px] text-slate-400 font-medium block mt-1">Usado este año: ${v} vez/veces</span>`;
-                if(regla.ReglaBloqueo==="Anual"          && v>=1) { disponible=false; btn="Ya utilizado este año"; }
-                if(regla.ReglaBloqueo==="Semestral"      && v>=1) { disponible=false; btn="Límite semestral alcanzado"; }
-                if(regla.ReglaBloqueo==="Mensual"        && v>=1) { disponible=false; btn="Límite mensual alcanzado"; }
-                if(regla.ReglaBloqueo==="Anual_Limite_2" && v>=2) { disponible=false; btn="Límite anual alcanzado (Máx 2)"; }
-                if(regla.ReglaBloqueo==="Anual_Limite_2" && v===1) badge2 += `<span class="text-[10px] text-amber-500 font-semibold block mt-0.5">⚠️ Te queda 1 solicitud disponible</span>`;
-            } else if(tipoActual==="Tiquetera") {
-                disponible=false; btn="No Habilitado";
+                const rb = regla.ReglaBloqueo;
+
+                // Solo bloquear en card si definitivamente no puede volver a pedir este año
+                if(rb === "Anual" && v >= 1) {
+                    disponible = false; btn = "Ya utilizado este año";
+                } else if(rb === "Anual_Limite_2" && v >= 2) {
+                    disponible = false; btn = "Límite anual alcanzado (Máx 2)";
+                }
+
+                // Badges informativos
+                if(rb === "Mensual" && v >= 1) {
+                    badge2 = `<span style="font-size:11px;color:#00A6B8;font-weight:600;display:block;margin-top:4px">📆 Usado ${v} vez/veces — Elige otra fecha al solicitar</span>`;
+                } else if(rb === "Semestral" && v >= 1) {
+                    const sem = v === 1 ? "1er semestre usado" : "2 semestres usados";
+                    badge2 = `<span style="font-size:11px;color:#00A6B8;font-weight:600;display:block;margin-top:4px">📆 ${sem} — Elige fecha del semestre disponible</span>`;
+                } else if(rb === "Anual_Limite_2" && v === 1) {
+                    badge2 = `<span style="font-size:11px;color:#b7920a;font-weight:600;display:block;margin-top:4px">⚠️ Te queda 1 solicitud disponible este año</span>`;
+                } else if(v > 0) {
+                    badge2 = `<span style="font-size:11px;color:#616161;font-weight:500;display:block;margin-top:4px">Usado este año: ${v} vez/veces</span>`;
+                }
+
+            } else if(tipoActual === "Tiquetera") {
+                disponible = false; btn = "No Habilitado";
             }
         } else if(regla) {
             const v = parseInt(regla.VecesUsado)||0;
-            badge2 = `<span class="text-[11px] text-slate-400 font-medium block mt-1">Usado este año: ${v} vez/veces</span>`;
+            if(v > 0) badge2 = `<span style="font-size:11px;color:#616161;font-weight:500;display:block;margin-top:4px">Usado este año: ${v} vez/veces</span>`;
         }
 
         // Indicador de cuota anual restante
@@ -298,13 +386,14 @@ function renderGrid() {
         }
 
         const card = document.createElement('div');
-        card.className = `bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between ${!disponible?'opacity-60 bg-slate-50/50':''}`;
+        card.className = 'card-app p-6 flex flex-col justify-between';
+        if(!disponible) card.style.cssText = 'opacity:0.6;background:#f8f9ff';
         card.innerHTML = `<div>
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${b.requiereAdjunto?'bg-amber-50 text-amber-800 border border-amber-100':'bg-emerald-50 text-emerald-800 border border-emerald-100'}">${b.requiereAdjunto?'📎 Requiere Soporte':'⚡ Uso Directo'}</span>
-            <h4 class="text-base font-bold text-slate-900 mt-3 mb-1 leading-snug">${b.titulo}</h4>
-            <p class="text-xs text-slate-400">Anticipación: ${b.diasAntelacion} día${b.diasAntelacion===1?'':'s'} hábil${b.diasAntelacion===1?'':'es'}</p>${badge2}
+            <span style="display:inline-flex;align-items:center;padding:3px 12px;border-radius:30px;font-size:11px;font-weight:700;${b.requiereAdjunto?'background:#fffde7;color:#b7920a;border:1px solid #FDDA2F':'background:#e0f7fa;color:#00838F;border:1px solid #b2ebf2'}">${b.requiereAdjunto?'📎 Requiere Soporte':'⚡ Uso Directo'}</span>
+            <h4 style="font-family:Montserrat,sans-serif;font-size:14px;font-weight:700;color:#1E1C66;margin-top:12px;margin-bottom:4px;line-height:1.4">${b.titulo}</h4>
+            <p style="font-size:11px;color:#616161">Anticipación: ${b.diasAntelacion} día${b.diasAntelacion===1?'':'s'} hábil${b.diasAntelacion===1?'':'es'}</p>${badge2}
             </div>
-            <button class="mt-6 w-full text-center py-2.5 px-4 rounded-xl text-sm font-semibold transition-all ${disponible?'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm':'bg-slate-200 text-slate-400 cursor-not-allowed'}" ${!disponible?'disabled':''}>${btn}</button>`;
+            <button style="margin-top:20px;width:100%;text-align:center;padding:10px 16px;border-radius:30px;font-size:13px;font-weight:700;font-family:Montserrat,sans-serif;transition:all 0.2s;${disponible?'background:#1E1C66;color:white;cursor:pointer':'background:#ECEFF1;color:#b7b7b7;cursor:not-allowed'}" ${!disponible?'disabled':''}>${btn}</button>`;
         if(disponible) card.querySelector('button').addEventListener('click', ()=>abrirPopup(b));
         gridBeneficios.appendChild(card);
     });
@@ -530,35 +619,42 @@ function cerrarSesion() {
 function setupFormValidation() {
     const laf = document.getElementById('lblAlertaFecha');
     const las  = document.getElementById('lblAlertaSemana');
-    attSoportes.addEventListener('change', e=>{ if(e.target.files.length>0) document.getElementById('lblFileStatus').innerText=`✅ ${e.target.files[0].name}`; validar(); });
-    [dtFechaInicio,txtJustificacion].forEach(el=>el.addEventListener('input',validar));
+
+    attSoportes.addEventListener('change', e=>{
+        if(e.target.files.length>0) document.getElementById('lblFileStatus').innerText=`✅ ${e.target.files[0].name}`;
+        validar();
+    });
+    [dtFechaInicio, txtJustificacion].forEach(el => el.addEventListener('input', validar));
     document.getElementById('inputHoraCita')?.addEventListener('input', validar);
 
     function validar() {
         if(!beneficioSeleccionado) return;
         const jv = txtJustificacion.value.trim().length > 0;
         let fv = false;
-        let semanaOk = true;
+        let reglaOk = true;
 
         if(dtFechaInicio.value) {
             const hoy = new Date(); hoy.setHours(0,0,0,0);
             const fechaSel = new Date(dtFechaInicio.value+'T00:00:00');
             const diffDias = Math.ceil((fechaSel - hoy) / 86400000);
             fv = true;
+
+            // Alerta de anticipación mínima
             diffDias < beneficioSeleccionado.diasAntelacion ? mostrarEl(laf) : ocultarEl(laf);
 
-            // Validar límite semanal solo para tiquetera y beneficios no excluidos
-            if(beneficioSeleccionado.tipo === "Tiquetera" && !EXCLUIDOS_LIMITES.includes(beneficioSeleccionado.titulo)) {
-                if(semanaYaTieneBeneficio(dtFechaInicio.value)) {
-                    semanaOk = false;
-                    if(las) {
-                        las.innerText = "⚠️ Ya tienes un beneficio aprobado para esta semana. Solo puedes disfrutar 1 beneficio por semana. Selecciona una fecha en otra semana.";
-                        mostrarEl(las);
-                    }
-                } else {
-                    semanaOk = true;
-                    if(las) ocultarEl(las);
+            // Evaluar regla de negocio según tipo de beneficio
+            const regla = permisosUsuario.find(p => p.Titulo === beneficioSeleccionado.titulo);
+            const mensajeConflicto = evaluarReglaFecha(beneficioSeleccionado, regla, dtFechaInicio.value);
+
+            if(mensajeConflicto) {
+                reglaOk = false;
+                if(las) {
+                    las.innerText = mensajeConflicto;
+                    mostrarEl(las);
                 }
+            } else {
+                reglaOk = true;
+                if(las) ocultarEl(las);
             }
         }
 
@@ -566,6 +662,6 @@ function setupFormValidation() {
             ? (document.getElementById('inputHoraCita')?.value?.trim().length > 0)
             : true;
 
-        btnEnviarSolicitud.disabled = !(jv && fv && semanaOk && horaVal && (!beneficioSeleccionado.requiereAdjunto || attSoportes.files.length > 0));
+        btnEnviarSolicitud.disabled = !(jv && fv && reglaOk && horaVal && (!beneficioSeleccionado.requiereAdjunto || attSoportes.files.length > 0));
     }
 }
