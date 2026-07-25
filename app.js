@@ -276,7 +276,7 @@ function badge(estado) {
     return `<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:9999px;font-size:10px;font-weight:700;background:${cfg.bg};color:${cfg.c};border:1px solid ${cfg.bc}">${cfg.ico} ${cfg.txt}</span>`;
 }
 
-function avatarDiv(nombre, size=28, bg='#1E1C66') {
+function avatarDiv(nombre, size=28, bg='#1878ba') {
     return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${bg};color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:${Math.round(size*0.4)}px;flex-shrink:0">${nombre.charAt(0).toUpperCase()}</div>`;
 }
 
@@ -339,7 +339,7 @@ function renderGrid() {
         const restantes = 15 - totalAnual;
         if(totalAnual >= 15) {
             bannerAnual.innerHTML = `🚫 Has alcanzado el límite anual de <strong>15 beneficios</strong>. No puedes radicar más solicitudes de tiquetera emocional este año.`;
-            bannerAnual.style.cssText = "display:block;margin-bottom:20px;padding:14px 20px;border-radius:20px;border:1px solid #fecaca;background:#fef2f2;color:#b91c1c;font-size:13px;font-weight:600;line-height:1.5;font-family:'Nunito',sans-serif";
+            bannerAnual.style.cssText = "display:block;margin-bottom:20px;padding:14px 20px;border-radius:20px;border:1px solid #fecaca;background:#fdf3f1;color:#cb6c59;font-size:13px;font-weight:600;line-height:1.5;font-family:'Nunito',sans-serif";
         } else if(restantes <= 3) {
             bannerAnual.innerHTML = `⚠️ Te quedan <strong>${restantes} beneficio${restantes===1?'':'s'}</strong> disponibles de tu cuota anual de 15. (Trabajo desde casa y Desconexión temprana no cuentan en este límite.)`;
             bannerAnual.style.cssText = "display:block;margin-bottom:20px;padding:14px 20px;border-radius:20px;border:1px solid #FDDA2F;background:#fffde7;color:#b7920a;font-size:13px;font-weight:600;line-height:1.5;font-family:'Nunito',sans-serif";
@@ -369,8 +369,8 @@ function renderPildoras() {
         return `<button onclick="filtrarCategoria('${cat}')"
             style="padding:8px 18px;border-radius:30px;font-size:12px;font-weight:700;font-family:'Montserrat',sans-serif;cursor:pointer;transition:all 0.2s;white-space:nowrap;
             ${activa
-                ? 'background:#1E1C66;color:white;border:2px solid #1E1C66;box-shadow:0 2px 8px rgba(30,28,102,0.25)'
-                : 'background:white;color:#1E1C66;border:2px solid #d0d5e8'}"
+                ? 'background:#ffd500;color:#222222;border:2px solid #ffd500;box-shadow:0 2px 8px rgba(255,213,0,0.35)'
+                : 'background:white;color:#222222;border:2px solid #e0e0e0'}"
         >${label}</button>`;
     }).join('');
 }
@@ -391,7 +391,7 @@ function renderGridTiquetera(totalAnual) {
         const header = document.createElement('div');
         header.style.cssText = "grid-column:1/-1;margin-top:8px";
         header.innerHTML = `
-            <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;border-radius:20px;background:linear-gradient(135deg,#1E1C66,#00A6B8);margin-bottom:4px">
+            <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;border-radius:20px;background:linear-gradient(135deg,#222222,#6a6a6a);margin-bottom:4px">
                 <span style="font-size:28px">${cat.emoji}</span>
                 <div>
                     <h3 style="font-family:'Montserrat',sans-serif;font-size:15px;font-weight:800;color:white;margin:0;line-height:1.2">${cat.id}</h3>
@@ -423,8 +423,8 @@ function crearCard(b, totalAnual) {
             const rb = regla.ReglaBloqueo;
             if(rb === "Anual" && v >= 1)          { disponible = false; btn = "Ya utilizado este año"; }
             else if(rb === "Anual_Limite_2" && v >= 2) { disponible = false; btn = "Límite anual alcanzado (Máx 2)"; }
-            if(rb === "Mensual" && v >= 1)         badge2 = `<span style="font-size:11px;color:#00A6B8;font-weight:600;display:block;margin-top:4px">📆 Usado ${v} vez/veces — Elige otra fecha al solicitar</span>`;
-            else if(rb === "Semestral" && v >= 1)  badge2 = `<span style="font-size:11px;color:#00A6B8;font-weight:600;display:block;margin-top:4px">📆 ${v===1?"1er semestre usado":"2 semestres usados"} — Elige fecha del semestre disponible</span>`;
+            if(rb === "Mensual" && v >= 1)         badge2 = `<span style="font-size:11px;color:#1878ba;font-weight:600;display:block;margin-top:4px">📆 Usado ${v} vez/veces — Elige otra fecha al solicitar</span>`;
+            else if(rb === "Semestral" && v >= 1)  badge2 = `<span style="font-size:11px;color:#1878ba;font-weight:600;display:block;margin-top:4px">📆 ${v===1?"1er semestre usado":"2 semestres usados"} — Elige fecha del semestre disponible</span>`;
             else if(rb === "Anual_Limite_2" && v === 1) badge2 = `<span style="font-size:11px;color:#b7920a;font-weight:600;display:block;margin-top:4px">⚠️ Te queda 1 solicitud disponible este año</span>`;
             else if(v > 0) badge2 = `<span style="font-size:11px;color:#616161;font-weight:500;display:block;margin-top:4px">Usado este año: ${v} vez/veces</span>`;
         } else if(b.tipo === "Tiquetera") {
@@ -445,10 +445,10 @@ function crearCard(b, totalAnual) {
     if(!disponible) card.style.cssText = 'opacity:0.6;background:#f8f9ff;border-radius:20px;padding:24px;display:flex;flex-direction:column;justify-content:space-between';
     card.innerHTML = `<div>
         <span style="display:inline-flex;align-items:center;padding:3px 12px;border-radius:30px;font-size:11px;font-weight:700;${b.requiereAdjunto?'background:#fffde7;color:#b7920a;border:1px solid #FDDA2F':'background:#e0f7fa;color:#00838F;border:1px solid #b2ebf2'}">${b.requiereAdjunto?'📎 Requiere Soporte':'⚡ Uso Directo'}</span>
-        <h4 style="font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;color:#1E1C66;margin-top:12px;margin-bottom:4px;line-height:1.4">${b.titulo}</h4>
+        <h4 style="font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;color:#222222;margin-top:12px;margin-bottom:4px;line-height:1.4">${b.titulo}</h4>
         <p style="font-size:11px;color:#616161">Anticipación: ${b.diasAntelacion} día${b.diasAntelacion===1?'':'s'} hábil${b.diasAntelacion===1?'':'es'}</p>${badge2}
         </div>
-        <button style="margin-top:20px;width:100%;text-align:center;padding:10px 16px;border-radius:30px;font-size:13px;font-weight:700;font-family:'Montserrat',sans-serif;transition:all 0.2s;${disponible?'background:#1E1C66;color:white;cursor:pointer':'background:#ECEFF1;color:#b7b7b7;cursor:not-allowed'}" ${!disponible?'disabled':''}>${btn}</button>`;
+        <button style="margin-top:20px;width:100%;text-align:center;padding:10px 16px;border-radius:30px;font-size:13px;font-weight:700;font-family:'Montserrat',sans-serif;transition:all 0.2s;${disponible?'background:#ffd500;color:#222222;cursor:pointer':'background:#ECEFF1;color:#b7b7b7;cursor:not-allowed'}" ${!disponible?'disabled':''}>${btn}</button>`;
     if(disponible) card.querySelector('button').addEventListener('click', () => abrirPopup(b));
     return card;
 }
@@ -474,12 +474,12 @@ function renderHistorial() {
     document.getElementById('kpiHistCuotaTexto').innerText = `${totalAnual}/15`;
     document.getElementById('barraHistCuota').style.width  = `${pct}%`;
     document.getElementById('barraHistCuota').style.background =
-        totalAnual >= 15 ? '#e53935' : totalAnual >= 12 ? 'linear-gradient(90deg,#b7920a,#e53935)' : 'linear-gradient(90deg,#1E1C66,#00A6B8)';
+        totalAnual >= 15 ? '#cb6c59' : totalAnual >= 12 ? 'linear-gradient(90deg,#b7920a,#cb6c59)' : 'linear-gradient(90deg,#1E1C66,#00A6B8)';
 
     const disponEl = document.getElementById('kpiHistDisponibles');
     if(disponEl) {
         disponEl.innerText = restantes > 0 ? `${restantes} disponibles` : '¡Cuota agotada!';
-        disponEl.style.color = restantes === 0 ? '#e53935' : restantes <= 3 ? '#b7920a' : '#00A6B8';
+        disponEl.style.color = restantes === 0 ? '#cb6c59' : restantes <= 3 ? '#b7920a' : '#00A6B8';
     }
 
     // Tabla
@@ -498,11 +498,11 @@ function renderHistorial() {
     tbody.innerHTML = ordenados.map(reg => {
         const cuentaEnCuota = !EXCLUIDOS_LIMITES.includes(reg.PermisoSolicitado);
         const cuentaBadge = cuentaEnCuota
-            ? `<span style="display:inline-flex;align-items:center;padding:2px 10px;border-radius:30px;font-size:10px;font-weight:700;background:#e8eaf6;color:#1E1C66;border:1px solid #c5cae9">✔ Sí cuenta</span>`
+            ? `<span style="display:inline-flex;align-items:center;padding:2px 10px;border-radius:30px;font-size:10px;font-weight:700;background:#e8f4fd;color:#1878ba;border:1px solid #b8daef">✔ Sí cuenta</span>`
             : `<span style="display:inline-flex;align-items:center;padding:2px 10px;border-radius:30px;font-size:10px;font-weight:700;background:#e0f7fa;color:#00838F;border:1px solid #b2ebf2">— No cuenta</span>`;
 
         return `<tr style="border-bottom:1px solid #ECEFF1;transition:background 0.15s" onmouseover="this.style.background='#f8f9ff'" onmouseout="this.style.background=''">
-            <td style="padding:12px 16px;font-size:12px;font-weight:600;color:#1E1C66;max-width:220px">
+            <td style="padding:12px 16px;font-size:12px;font-weight:600;color:#222222;max-width:220px">
                 <span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${reg.PermisoSolicitado||''}">${reg.PermisoSolicitado||'—'}</span>
             </td>
             <td style="padding:12px 16px;font-size:11px;color:#616161;white-space:nowrap">${formatFecha(reg.Created)}</td>
@@ -576,7 +576,7 @@ function renderTarjetasServidores(hist) {
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center">
                 <div style="background:#f0fdf4;border-radius:8px;padding:6px"><div style="font-size:18px;font-weight:700;color:#15803d">${a}</div><div style="font-size:9px;color:#16a34a;font-weight:600;text-transform:uppercase">Aprobados</div></div>
                 <div style="background:#fffbeb;border-radius:8px;padding:6px"><div style="font-size:18px;font-weight:700;color:#b45309">${pe}</div><div style="font-size:9px;color:#d97706;font-weight:600;text-transform:uppercase">Pendientes</div></div>
-                <div style="background:#fef2f2;border-radius:8px;padding:6px"><div style="font-size:18px;font-weight:700;color:#b91c1c">${re}</div><div style="font-size:9px;color:#dc2626;font-weight:600;text-transform:uppercase">Rechazados</div></div>
+                <div style="background:#fdf3f1;border-radius:8px;padding:6px"><div style="font-size:18px;font-weight:700;color:#b91c1c">${re}</div><div style="font-size:9px;color:#cb6c59;font-weight:600;text-transform:uppercase">Rechazados</div></div>
             </div>
             ${sols.length===0?'<div style="text-align:center;margin-top:8px;font-size:10px;color:#cbd5e1">Sin solicitudes en este período</div>':''}
         </div>`;
@@ -651,10 +651,10 @@ function renderRankingServidores(hist) {
                 <div style="flex:1;min-width:0">
                     <div style="display:flex;justify-content:space-between;margin-bottom:3px">
                         <span style="font-size:12px;font-weight:700;color:#1e293b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${nom}</span>
-                        <span style="font-size:11px;font-weight:700;color:#1E1C66;flex-shrink:0;margin-left:8px">${val} sol.</span>
+                        <span style="font-size:11px;font-weight:700;color:#222222;flex-shrink:0;margin-left:8px">${val} sol.</span>
                     </div>
                     <div style="background:#f1f5f9;border-radius:9999px;height:6px;overflow:hidden;margin-bottom:3px">
-                        <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#1E1C66,#00A6B8);border-radius:9999px"></div>
+                        <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#1878ba,#ffd500);border-radius:9999px"></div>
                     </div>
                     <div style="display:flex;gap:8px">
                         <span style="font-size:10px;color:#15803d;font-weight:600">✔ ${aprob} aprobados</span>
