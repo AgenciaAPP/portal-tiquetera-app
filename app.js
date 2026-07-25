@@ -517,12 +517,11 @@ function renderHistorial() {
             ? `<span style="display:inline-flex;align-items:center;padding:2px 10px;border-radius:30px;font-size:10px;font-weight:700;background:#e8f4fd;color:#1878ba;border:1px solid #b8daef">✔ Sí cuenta</span>`
             : `<span style="display:inline-flex;align-items:center;padding:2px 10px;border-radius:30px;font-size:10px;font-weight:700;background:#e0f7fa;color:#00838F;border:1px solid #b2ebf2">— No cuenta</span>`;
 
-        return `<tr style="border-bottom:1px solid #ECEFF1;transition:background 0.15s" onmouseover="this.style.background='#f8f9ff'" onmouseout="this.style.background=''">
-            <td style="padding:12px 16px;font-size:12px;font-weight:600;color:#222222;max-width:220px">
+        return `<tr style="border-bottom:1px solid #f0f0f0;transition:background 0.15s" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''">
+            <td style="padding:12px 16px;font-size:12px;font-weight:600;color:#222222;max-width:240px">
                 <span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${reg.PermisoSolicitado||''}">${reg.PermisoSolicitado||'—'}</span>
             </td>
-            <td style="padding:12px 16px;font-size:11px;color:#616161;white-space:nowrap">${formatFecha(reg.Created)}</td>
-            <td style="padding:12px 16px;font-size:11px;color:#616161;white-space:nowrap">${formatFecha(reg.FechaSolicitud||reg.FechaInicio)}</td>
+            <td style="padding:12px 16px;font-size:11px;color:#6a6a6a;white-space:nowrap">${formatFecha(reg.FechaSolicitud||reg.FechaInicio)}</td>
             <td style="padding:12px 16px">${cuentaBadge}</td>
             <td style="padding:12px 16px">${badge(getEstado(reg))}</td>
         </tr>`;
