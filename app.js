@@ -637,28 +637,28 @@ function renderRankingServidores(hist) {
     hist.forEach(r => { conteo[r.Title]=(conteo[r.Title]||0)+1; });
     const sorted = Object.entries(conteo).sort((a,b)=>b[1]-a[1]).slice(0,8);
     const maxVal = sorted[0]?.[1]||1;
-    const medallas = ['🥇','🥈','🥉'];
     el.innerHTML = sorted.length===0
-        ? '<p style="font-size:12px;color:#94a3b8;text-align:center;padding:16px">Sin datos en el período seleccionado.</p>'
-        : sorted.map(([ced,val],i) => {
+        ? '<p style="font-size:12px;color:#aaaaaa;text-align:center;padding:16px">Sin datos en el período seleccionado.</p>'
+        : sorted.map(([ced,val]) => {
             const nom = getNombre(ced);
             const pct = Math.round(val/maxVal*100);
             const aprob = hist.filter(r=>r.Title===ced && getEstado(r).toLowerCase()==='aprobado').length;
             const rech  = hist.filter(r=>r.Title===ced && getEstado(r).toLowerCase()==='rechazado').length;
-            return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f1f5f9">
-                <span style="font-size:18px;width:24px;text-align:center">${medallas[i]||`<span style='font-size:12px;color:#94a3b8;font-weight:700'>#${i+1}</span>`}</span>
-                ${avatarDiv(nom,32,'#1E1C66')}
+            const pend  = val - aprob - rech;
+            return `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f0f0f0">
+                ${avatarDiv(nom, 34, '#1878ba')}
                 <div style="flex:1;min-width:0">
-                    <div style="display:flex;justify-content:space-between;margin-bottom:3px">
-                        <span style="font-size:12px;font-weight:700;color:#1e293b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${nom}</span>
-                        <span style="font-size:11px;font-weight:700;color:#222222;flex-shrink:0;margin-left:8px">${val} sol.</span>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+                        <span style="font-size:12px;font-weight:700;color:#222222;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'Montserrat',sans-serif">${nom}</span>
+                        <span style="font-size:11px;font-weight:700;color:#1878ba;flex-shrink:0;margin-left:8px;font-family:'Montserrat',sans-serif">${val} solicitud${val===1?'':'es'}</span>
                     </div>
-                    <div style="background:#f1f5f9;border-radius:9999px;height:6px;overflow:hidden;margin-bottom:3px">
+                    <div style="background:#f0f0f0;border-radius:9999px;height:5px;overflow:hidden;margin-bottom:5px">
                         <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#1878ba,#ffd500);border-radius:9999px"></div>
                     </div>
-                    <div style="display:flex;gap:8px">
-                        <span style="font-size:10px;color:#15803d;font-weight:600">✔ ${aprob} aprobados</span>
-                        <span style="font-size:10px;color:#b91c1c;font-weight:600">✘ ${rech} rechazados</span>
+                    <div style="display:flex;gap:10px">
+                        <span style="font-size:10px;color:#2e7d32;font-weight:600">✔ ${aprob} aprobadas</span>
+                        <span style="font-size:10px;color:#b7920a;font-weight:600">⏳ ${pend} pendientes</span>
+                        <span style="font-size:10px;color:#cb6c59;font-weight:600">✘ ${rech} rechazadas</span>
                     </div>
                 </div>
             </div>`;
