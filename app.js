@@ -283,6 +283,22 @@ function badge(estado) {
     return `<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:9999px;font-size:10px;font-weight:700;background:${cfg.bg};color:${cfg.c};border:1px solid ${cfg.bc}">${cfg.ico} ${cfg.txt}</span>`;
 }
 
+
+// Obtiene el tipo (Tiquetera / Administrativos) de un permiso por su título
+function getTipoBeneficio(titulo) {
+    const b = beneficios.find(b => b.titulo === titulo);
+    return b ? b.tipo : null;
+}
+
+function badgeTipo(titulo) {
+    const tipo = getTipoBeneficio(titulo);
+    if(tipo === "Tiquetera")
+        return `<span style="display:inline-flex;align-items:center;padding:2px 10px;border-radius:30px;font-size:10px;font-weight:700;background:#fffbea;color:#b7920a;border:1px solid #ffd500">🎟️ Tiquetera</span>`;
+    if(tipo === "Administrativos")
+        return `<span style="display:inline-flex;align-items:center;padding:2px 10px;border-radius:30px;font-size:10px;font-weight:700;background:#e8f4fd;color:#1878ba;border:1px solid #b8daef">💼 Administrativa</span>`;
+    return `<span style="display:inline-flex;align-items:center;padding:2px 10px;border-radius:30px;font-size:10px;font-weight:700;background:#f0f0f0;color:#6a6a6a;border:1px solid #e0e0e0">— Sin clasificar</span>`;
+}
+
 function avatarDiv(nombre, size=28, bg='#1878ba') {
     return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${bg};color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:${Math.round(size*0.4)}px;flex-shrink:0">${nombre.charAt(0).toUpperCase()}</div>`;
 }
@@ -297,6 +313,7 @@ function serverRow(reg) {
             </div>
         </td>
         <td style="padding:12px 16px;font-size:12px;font-weight:600;color:#333333;max-width:180px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${reg.PermisoSolicitado||''}">${reg.PermisoSolicitado||'—'}</span></td>
+        <td style="padding:12px 16px">${badgeTipo(reg.PermisoSolicitado)}</td>
         <td style="padding:12px 16px;font-size:11px;color:#6a6a6a;white-space:nowrap">${formatFecha(reg.Created)}</td>
         <td style="padding:12px 16px;font-size:11px;color:#6a6a6a;white-space:nowrap">${formatFecha(reg.FechaSolicitud||reg.FechaInicio)}</td>
         <td style="padding:12px 16px">${badge(getEstado(reg))}</td>
@@ -314,6 +331,7 @@ function serverRowTH(reg) {
             </div>
         </td>
         <td style="padding:12px 16px;font-size:12px;font-weight:600;color:#333333;max-width:200px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${reg.PermisoSolicitado||''}">${reg.PermisoSolicitado||'—'}</span></td>
+        <td style="padding:12px 16px">${badgeTipo(reg.PermisoSolicitado)}</td>
         <td style="padding:12px 16px;font-size:11px;color:#6a6a6a;white-space:nowrap">${formatFecha(reg.FechaSolicitud||reg.FechaInicio)}</td>
         <td style="padding:12px 16px">${badge(getEstado(reg))}</td>
     </tr>`;
@@ -509,7 +527,11 @@ function renderHistorial() {
     const tbody = document.getElementById('tbodyHistorial');
     if(!tbody) return;
 
-    const ordenados = [...fechasDisfrute].sort((a,b) => new Date(b.Created||0) - new Date(a.Created||0));
+    const tipFiltroHist = document.getElementById('filtroHistTipo')?.value||'';
+    const histFiltradoHist = tipFiltroHist
+        ? fechasDisfrute.filter(r => (getTipoBeneficio(r.PermisoSolicitado)||'') === tipFiltroHist)
+        : fechasDisfrute;
+    const ordenados = [...histFiltradoHist].sort((a,b) => new Date(b.Created||0) - new Date(a.Created||0));
 
     if(ordenados.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" style="padding:32px;text-align:center;font-size:11px;color:#b7b7b7;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">
@@ -525,9 +547,10 @@ function renderHistorial() {
             : `<span style="display:inline-flex;align-items:center;padding:2px 10px;border-radius:30px;font-size:10px;font-weight:700;background:#e0f7fa;color:#00838F;border:1px solid #b2ebf2">— No cuenta</span>`;
 
         return `<tr style="border-bottom:1px solid #f0f0f0;transition:background 0.15s" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''">
-            <td style="padding:12px 16px;font-size:12px;font-weight:600;color:#222222;max-width:240px">
+            <td style="padding:12px 16px;font-size:12px;font-weight:600;color:#222222;max-width:220px">
                 <span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${reg.PermisoSolicitado||''}">${reg.PermisoSolicitado||'—'}</span>
             </td>
+            <td style="padding:12px 16px">${badgeTipo(reg.PermisoSolicitado)}</td>
             <td style="padding:12px 16px;font-size:11px;color:#6a6a6a;white-space:nowrap">${formatFecha(reg.FechaSolicitud||reg.FechaInicio)}</td>
             <td style="padding:12px 16px">${cuentaBadge}</td>
             <td style="padding:12px 16px">${badge(getEstado(reg))}</td>
@@ -542,12 +565,15 @@ function renderDashboardEquipo() {
     const busq = (document.getElementById('filtroEquipoBusqueda')?.value||'').toLowerCase();
     const est  = (document.getElementById('filtroEquipoEstado')?.value||'').toLowerCase();
     const ben  = document.getElementById('filtroEquipoBeneficio')?.value||'';
+    const tipFiltro = document.getElementById('filtroEquipoTipo')?.value||'';
     const histFiltrado = hist.filter(r => {
         const nom = getNombre(r.Title).toLowerCase();
         const ced = (r.Title||'').toLowerCase();
+        const tipo = getTipoBeneficio(r.PermisoSolicitado)||'';
         return (!busq || nom.includes(busq) || ced.includes(busq))
             && (!est  || getEstado(r).toLowerCase()===est)
-            && (!ben  || r.PermisoSolicitado===ben);
+            && (!ben  || r.PermisoSolicitado===ben)
+            && (!tipFiltro || tipo===tipFiltro);
     });
     const total = histFiltrado.length;
     const aprob = histFiltrado.filter(r=>getEstado(r).toLowerCase()==='aprobado').length;
@@ -614,12 +640,15 @@ function renderDashboardTH() {
     const busq = (document.getElementById('filtroTHBusqueda')?.value||'').toLowerCase();
     const est  = (document.getElementById('filtroTHEstado')?.value||'').toLowerCase();
     const ben  = document.getElementById('filtroTHBeneficio')?.value||'';
+    const tipFiltroTH = document.getElementById('filtroTHTipo')?.value||'';
     const histFiltrado = hist.filter(r => {
         const nom = getNombre(r.Title).toLowerCase();
         const ced = (r.Title||'').toLowerCase();
+        const tipo = getTipoBeneficio(r.PermisoSolicitado)||'';
         return (!busq || nom.includes(busq) || ced.includes(busq))
             && (!est  || getEstado(r).toLowerCase()===est)
-            && (!ben  || r.PermisoSolicitado===ben);
+            && (!ben  || r.PermisoSolicitado===ben)
+            && (!tipFiltroTH || tipo===tipFiltroTH);
     });
     const total = histFiltrado.length;
     const aprob = histFiltrado.filter(r=>getEstado(r).toLowerCase()==='aprobado').length;
