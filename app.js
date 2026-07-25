@@ -1,9 +1,10 @@
-import { beneficios } from './beneficios.js';
+import { beneficios, categoriasTiquetera } from './beneficios.js';
 
 // ==========================================
 // ESTADO GLOBAL
 // ==========================================
 let tipoActual = "Tiquetera";
+let categoriaActiva = "Todas"; // filtro de píldoras en tiquetera
 let beneficioSeleccionado = null;
 let permisosUsuario = [];
 let rolUsuarioActivo = "EMPLEADO";
@@ -131,8 +132,13 @@ function activarTab(tipo) {
     tipoActual = tipo;
     [tabTiquetera, tabAdministrativos, tabHistorial, tabEquipo, tabAnaliticaTH].forEach(t => { if(t) t.className = TAB_INACTIVO; });
     ocultarEl(gridBeneficios); ocultarEl(seccionHistorial); ocultarEl(seccionDashboardEquipo); ocultarEl(seccionAnaliticaTH);
+
+    // Píldoras solo visibles en Tiquetera
+    const pildoras = document.getElementById('contenedorPildoras');
+    if(pildoras) pildoras.style.display = tipo === 'Tiquetera' ? 'flex' : 'none';
+
     switch(tipo) {
-        case 'Tiquetera':      tabTiquetera.className = TAB_ACTIVO; mostrarEl(gridBeneficios); renderGrid(); break;
+        case 'Tiquetera':      tabTiquetera.className = TAB_ACTIVO; mostrarEl(gridBeneficios); categoriaActiva = "Todas"; renderGrid(); break;
         case 'Administrativos':tabAdministrativos.className = TAB_ACTIVO; mostrarEl(gridBeneficios); renderGrid(); break;
         case 'Historial':      tabHistorial.className = TAB_ACTIVO; mostrarEl(seccionHistorial); renderHistorial(); break;
         case 'Equipo':         tabEquipo.className = TAB_ACTIVO; mostrarEl(seccionDashboardEquipo); renderDashboardEquipo(); break;
@@ -327,86 +333,124 @@ function barras(conteo, total, contenedorId) {
 function renderGrid() {
     gridBeneficios.innerHTML = '';
 
-    // Mostrar cuota anual restante si aplica
     const totalAnual = contarBeneficiosAnuales();
     const bannerAnual = document.getElementById('bannerLimiteAnual');
     if(bannerAnual && tipoActual === "Tiquetera") {
         const restantes = 15 - totalAnual;
         if(totalAnual >= 15) {
             bannerAnual.innerHTML = `🚫 Has alcanzado el límite anual de <strong>15 beneficios</strong>. No puedes radicar más solicitudes de tiquetera emocional este año.`;
-            bannerAnual.style.cssText = "display:block;margin-bottom:16px;padding:14px 18px;border-radius:14px;border:1px solid #fecaca;background:#fef2f2;color:#b91c1c;font-size:13px;font-weight:600;line-height:1.5";
+            bannerAnual.style.cssText = "display:block;margin-bottom:20px;padding:14px 20px;border-radius:20px;border:1px solid #fecaca;background:#fef2f2;color:#b91c1c;font-size:13px;font-weight:600;line-height:1.5;font-family:'Nunito',sans-serif";
         } else if(restantes <= 3) {
             bannerAnual.innerHTML = `⚠️ Te quedan <strong>${restantes} beneficio${restantes===1?'':'s'}</strong> disponibles de tu cuota anual de 15. (Trabajo desde casa y Desconexión temprana no cuentan en este límite.)`;
-            bannerAnual.style.cssText = "display:block;margin-bottom:16px;padding:14px 18px;border-radius:14px;border:1px solid #fde68a;background:#fffbeb;color:#b45309;font-size:13px;font-weight:600;line-height:1.5";
+            bannerAnual.style.cssText = "display:block;margin-bottom:20px;padding:14px 20px;border-radius:20px;border:1px solid #FDDA2F;background:#fffde7;color:#b7920a;font-size:13px;font-weight:600;line-height:1.5;font-family:'Nunito',sans-serif";
         } else {
             ocultarEl(bannerAnual);
         }
+    } else if(bannerAnual) {
+        ocultarEl(bannerAnual);
     }
 
-    beneficios.filter(b=>b.tipo===tipoActual).forEach(b => {
-        const regla = permisosUsuario.find(p=>p.Titulo===b.titulo);
-        let disponible=true, btn="Solicitar", badge2="";
+    if(tipoActual === "Tiquetera") {
+        renderGridTiquetera(totalAnual);
+    } else {
+        renderGridAdministrativos();
+    }
+}
 
-        // Regla límite anual de 15 (no aplica a excluidos)
-        if(tipoActual === "Tiquetera" && totalAnual >= 15 && !EXCLUIDOS_LIMITES.includes(b.titulo)) {
-            disponible = false;
-            btn = "Límite anual alcanzado (Máx 15)";
-        }
+function renderPildoras() {
+    const contenedor = document.getElementById('contenedorPildoras');
+    if(!contenedor) return;
+    const pildoras = ["Todas", ...categoriasTiquetera.map(c => c.id)];
+    contenedor.innerHTML = pildoras.map(cat => {
+        const activa = cat === categoriaActiva;
+        const catInfo = categoriasTiquetera.find(c => c.id === cat);
+        const emoji = catInfo ? catInfo.emoji : '✨';
+        const label = cat === "Todas" ? "✨ Todas" : `${emoji} ${cat}`;
+        return `<button onclick="filtrarCategoria('${cat}')"
+            style="padding:8px 18px;border-radius:30px;font-size:12px;font-weight:700;font-family:'Montserrat',sans-serif;cursor:pointer;transition:all 0.2s;white-space:nowrap;
+            ${activa
+                ? 'background:#1E1C66;color:white;border:2px solid #1E1C66;box-shadow:0 2px 8px rgba(30,28,102,0.25)'
+                : 'background:white;color:#1E1C66;border:2px solid #d0d5e8'}"
+        >${label}</button>`;
+    }).join('');
+}
 
-        // Reglas individuales por beneficio
-        // Mensual y Semestral NO se bloquean en la card — se evalúan en el popup al elegir fecha
-        if(disponible) {
-            if(regla) {
-                const v = parseInt(regla.VecesUsado)||0;
-                const rb = regla.ReglaBloqueo;
+window.filtrarCategoria = function(cat) {
+    categoriaActiva = cat;
+    renderGrid();
+};
 
-                // Solo bloquear en card si definitivamente no puede volver a pedir este año
-                if(rb === "Anual" && v >= 1) {
-                    disponible = false; btn = "Ya utilizado este año";
-                } else if(rb === "Anual_Limite_2" && v >= 2) {
-                    disponible = false; btn = "Límite anual alcanzado (Máx 2)";
-                }
+function renderGridTiquetera(totalAnual) {
+    renderPildoras();
+    const categoriasAMostrar = categoriaActiva === "Todas"
+        ? categoriasTiquetera
+        : categoriasTiquetera.filter(c => c.id === categoriaActiva);
 
-                // Badges informativos
-                if(rb === "Mensual" && v >= 1) {
-                    badge2 = `<span style="font-size:11px;color:#00A6B8;font-weight:600;display:block;margin-top:4px">📆 Usado ${v} vez/veces — Elige otra fecha al solicitar</span>`;
-                } else if(rb === "Semestral" && v >= 1) {
-                    const sem = v === 1 ? "1er semestre usado" : "2 semestres usados";
-                    badge2 = `<span style="font-size:11px;color:#00A6B8;font-weight:600;display:block;margin-top:4px">📆 ${sem} — Elige fecha del semestre disponible</span>`;
-                } else if(rb === "Anual_Limite_2" && v === 1) {
-                    badge2 = `<span style="font-size:11px;color:#b7920a;font-weight:600;display:block;margin-top:4px">⚠️ Te queda 1 solicitud disponible este año</span>`;
-                } else if(v > 0) {
-                    badge2 = `<span style="font-size:11px;color:#616161;font-weight:500;display:block;margin-top:4px">Usado este año: ${v} vez/veces</span>`;
-                }
-
-            } else if(tipoActual === "Tiquetera") {
-                disponible = false; btn = "No Habilitado";
-            }
-        } else if(regla) {
-            const v = parseInt(regla.VecesUsado)||0;
-            if(v > 0) badge2 = `<span style="font-size:11px;color:#616161;font-weight:500;display:block;margin-top:4px">Usado este año: ${v} vez/veces</span>`;
-        }
-
-        // Indicador de cuota anual restante
-        if(tipoActual === "Tiquetera" && disponible && !EXCLUIDOS_LIMITES.includes(b.titulo)) {
-            const restantes = 15 - totalAnual;
-            if(restantes <= 3 && restantes > 0) {
-                badge2 += `<span class="text-[10px] text-amber-500 font-semibold block mt-0.5">📊 Cuota anual: ${totalAnual}/15 usados</span>`;
-            }
-        }
-
-        const card = document.createElement('div');
-        card.className = 'card-app p-6 flex flex-col justify-between';
-        if(!disponible) card.style.cssText = 'opacity:0.6;background:#f8f9ff';
-        card.innerHTML = `<div>
-            <span style="display:inline-flex;align-items:center;padding:3px 12px;border-radius:30px;font-size:11px;font-weight:700;${b.requiereAdjunto?'background:#fffde7;color:#b7920a;border:1px solid #FDDA2F':'background:#e0f7fa;color:#00838F;border:1px solid #b2ebf2'}">${b.requiereAdjunto?'📎 Requiere Soporte':'⚡ Uso Directo'}</span>
-            <h4 style="font-family:Montserrat,sans-serif;font-size:14px;font-weight:700;color:#1E1C66;margin-top:12px;margin-bottom:4px;line-height:1.4">${b.titulo}</h4>
-            <p style="font-size:11px;color:#616161">Anticipación: ${b.diasAntelacion} día${b.diasAntelacion===1?'':'s'} hábil${b.diasAntelacion===1?'':'es'}</p>${badge2}
-            </div>
-            <button style="margin-top:20px;width:100%;text-align:center;padding:10px 16px;border-radius:30px;font-size:13px;font-weight:700;font-family:Montserrat,sans-serif;transition:all 0.2s;${disponible?'background:#1E1C66;color:white;cursor:pointer':'background:#ECEFF1;color:#b7b7b7;cursor:not-allowed'}" ${!disponible?'disabled':''}>${btn}</button>`;
-        if(disponible) card.querySelector('button').addEventListener('click', ()=>abrirPopup(b));
-        gridBeneficios.appendChild(card);
+    categoriasAMostrar.forEach(cat => {
+        const beneficiosCat = beneficios.filter(b => b.tipo === "Tiquetera" && b.categoria === cat.id);
+        const header = document.createElement('div');
+        header.style.cssText = "grid-column:1/-1;margin-top:8px";
+        header.innerHTML = `
+            <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;border-radius:20px;background:linear-gradient(135deg,#1E1C66,#00A6B8);margin-bottom:4px">
+                <span style="font-size:28px">${cat.emoji}</span>
+                <div>
+                    <h3 style="font-family:'Montserrat',sans-serif;font-size:15px;font-weight:800;color:white;margin:0;line-height:1.2">${cat.id}</h3>
+                    <p style="font-family:'Nunito',sans-serif;font-size:11px;color:rgba(255,255,255,0.75);margin:2px 0 0 0">${cat.subtitulo}</p>
+                </div>
+            </div>`;
+        gridBeneficios.appendChild(header);
+        beneficiosCat.forEach(b => gridBeneficios.appendChild(crearCard(b, totalAnual)));
     });
+}
+
+function renderGridAdministrativos() {
+    beneficios.filter(b => b.tipo === "Administrativos").forEach(b => {
+        gridBeneficios.appendChild(crearCard(b, 0));
+    });
+}
+
+function crearCard(b, totalAnual) {
+    const regla = permisosUsuario.find(p => p.Titulo === b.titulo);
+    let disponible = true, btn = "Solicitar", badge2 = "";
+
+    if(b.tipo === "Tiquetera" && totalAnual >= 15 && !EXCLUIDOS_LIMITES.includes(b.titulo)) {
+        disponible = false; btn = "Límite anual alcanzado (Máx 15)";
+    }
+
+    if(disponible) {
+        if(regla) {
+            const v = parseInt(regla.VecesUsado) || 0;
+            const rb = regla.ReglaBloqueo;
+            if(rb === "Anual" && v >= 1)          { disponible = false; btn = "Ya utilizado este año"; }
+            else if(rb === "Anual_Limite_2" && v >= 2) { disponible = false; btn = "Límite anual alcanzado (Máx 2)"; }
+            if(rb === "Mensual" && v >= 1)         badge2 = `<span style="font-size:11px;color:#00A6B8;font-weight:600;display:block;margin-top:4px">📆 Usado ${v} vez/veces — Elige otra fecha al solicitar</span>`;
+            else if(rb === "Semestral" && v >= 1)  badge2 = `<span style="font-size:11px;color:#00A6B8;font-weight:600;display:block;margin-top:4px">📆 ${v===1?"1er semestre usado":"2 semestres usados"} — Elige fecha del semestre disponible</span>`;
+            else if(rb === "Anual_Limite_2" && v === 1) badge2 = `<span style="font-size:11px;color:#b7920a;font-weight:600;display:block;margin-top:4px">⚠️ Te queda 1 solicitud disponible este año</span>`;
+            else if(v > 0) badge2 = `<span style="font-size:11px;color:#616161;font-weight:500;display:block;margin-top:4px">Usado este año: ${v} vez/veces</span>`;
+        } else if(b.tipo === "Tiquetera") {
+            disponible = false; btn = "No Habilitado";
+        }
+    } else if(regla) {
+        const v = parseInt(regla.VecesUsado) || 0;
+        if(v > 0) badge2 = `<span style="font-size:11px;color:#616161;font-weight:500;display:block;margin-top:4px">Usado este año: ${v} vez/veces</span>`;
+    }
+
+    if(b.tipo === "Tiquetera" && disponible && !EXCLUIDOS_LIMITES.includes(b.titulo)) {
+        const restantes = 15 - totalAnual;
+        if(restantes <= 3 && restantes > 0) badge2 += `<span style="font-size:10px;color:#b7920a;font-weight:700;display:block;margin-top:4px">📊 Cuota anual: ${totalAnual}/15 usados</span>`;
+    }
+
+    const card = document.createElement('div');
+    card.className = 'card-app p-6 flex flex-col justify-between';
+    if(!disponible) card.style.cssText = 'opacity:0.6;background:#f8f9ff;border-radius:20px;padding:24px;display:flex;flex-direction:column;justify-content:space-between';
+    card.innerHTML = `<div>
+        <span style="display:inline-flex;align-items:center;padding:3px 12px;border-radius:30px;font-size:11px;font-weight:700;${b.requiereAdjunto?'background:#fffde7;color:#b7920a;border:1px solid #FDDA2F':'background:#e0f7fa;color:#00838F;border:1px solid #b2ebf2'}">${b.requiereAdjunto?'📎 Requiere Soporte':'⚡ Uso Directo'}</span>
+        <h4 style="font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;color:#1E1C66;margin-top:12px;margin-bottom:4px;line-height:1.4">${b.titulo}</h4>
+        <p style="font-size:11px;color:#616161">Anticipación: ${b.diasAntelacion} día${b.diasAntelacion===1?'':'s'} hábil${b.diasAntelacion===1?'':'es'}</p>${badge2}
+        </div>
+        <button style="margin-top:20px;width:100%;text-align:center;padding:10px 16px;border-radius:30px;font-size:13px;font-weight:700;font-family:'Montserrat',sans-serif;transition:all 0.2s;${disponible?'background:#1E1C66;color:white;cursor:pointer':'background:#ECEFF1;color:#b7b7b7;cursor:not-allowed'}" ${!disponible?'disabled':''}>${btn}</button>`;
+    if(disponible) card.querySelector('button').addEventListener('click', () => abrirPopup(b));
+    return card;
 }
 
 // ==========================================
