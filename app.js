@@ -182,11 +182,18 @@ function registrosPorTitulo(titulo) {
     return fechasDisfrute.filter(r => r.PermisoSolicitado === titulo);
 }
 
-// Cuenta beneficios aprobados en el año actual excluyendo trabajo en casa y desconexión
+// Títulos de situaciones administrativas (no cuentan en el límite de 15)
+const TITULOS_ADMINISTRATIVOS = new Set(
+    beneficios.filter(b => b.tipo === "Administrativos").map(b => b.titulo)
+);
+
+// Cuenta beneficios de tiquetera aprobados en el año actual
+// Excluye: situaciones administrativas + trabajo en casa + desconexión temprana
 function contarBeneficiosAnuales() {
     const inicioAnio = new Date(new Date().getFullYear(), 0, 1).getTime();
     return fechasDisfrute.filter(reg => {
         if(EXCLUIDOS_LIMITES.includes(reg.PermisoSolicitado)) return false;
+        if(TITULOS_ADMINISTRATIVOS.has(reg.PermisoSolicitado)) return false;
         const ts = tsDeReg(reg);
         return ts !== null && ts >= inicioAnio;
     }).length;
@@ -512,7 +519,7 @@ function renderHistorial() {
     }
 
     tbody.innerHTML = ordenados.map(reg => {
-        const cuentaEnCuota = !EXCLUIDOS_LIMITES.includes(reg.PermisoSolicitado);
+        const cuentaEnCuota = !EXCLUIDOS_LIMITES.includes(reg.PermisoSolicitado) && !TITULOS_ADMINISTRATIVOS.has(reg.PermisoSolicitado);
         const cuentaBadge = cuentaEnCuota
             ? `<span style="display:inline-flex;align-items:center;padding:2px 10px;border-radius:30px;font-size:10px;font-weight:700;background:#e8f4fd;color:#1878ba;border:1px solid #b8daef">✔ Sí cuenta</span>`
             : `<span style="display:inline-flex;align-items:center;padding:2px 10px;border-radius:30px;font-size:10px;font-weight:700;background:#e0f7fa;color:#00838F;border:1px solid #b2ebf2">— No cuenta</span>`;
