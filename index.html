@@ -153,6 +153,7 @@
             <nav class="flex space-x-6">
                 <button id="tabTiquetera"       class="tab-activo font-heading whitespace-nowrap py-4 px-1 text-sm transition-all focus:outline-none">🎟️ Tiquetera Emocional</button>
                 <button id="tabAdministrativos" class="tab-inactivo font-heading whitespace-nowrap py-4 px-1 text-sm transition-all focus:outline-none">💼 Situaciones Administrativas</button>
+                <button id="tabHistorial"       class="tab-inactivo font-heading whitespace-nowrap py-4 px-1 text-sm transition-all focus:outline-none">📋 Mi Historial</button>
                 <button id="tabEquipo"          style="display:none" class="tab-inactivo font-heading whitespace-nowrap py-4 px-1 text-sm transition-all focus:outline-none">👥 Mi Equipo</button>
                 <button id="tabAnaliticaTH"     style="display:none" class="tab-inactivo font-heading whitespace-nowrap py-4 px-1 text-sm transition-all focus:outline-none">📊 Gestión Talento Humano</button>
             </nav>
@@ -163,6 +164,70 @@
 
         <!-- Panel A: Grid beneficios -->
         <div id="gridBeneficios" class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"></div>
+
+        <!-- Panel Mi Historial -->
+        <div id="seccionHistorial" style="display:none" class="space-y-6">
+
+            <!-- KPIs personales -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="card-app p-5 kpi-azul">
+                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#616161">Usados este año</span>
+                    <span id="kpiHistUsados" class="text-4xl font-bold block font-heading" style="color:#1E1C66">0</span>
+                    <span class="text-[10px] mt-1 block font-medium" style="color:#616161">de 15 disponibles</span>
+                </div>
+                <div class="card-app p-5 kpi-verde">
+                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#616161">Aprobados</span>
+                    <span id="kpiHistAprobados" class="text-4xl font-bold block font-heading" style="color:#43A047">0</span>
+                </div>
+                <div class="card-app p-5 kpi-amarillo">
+                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#616161">Pendientes</span>
+                    <span id="kpiHistPendientes" class="text-4xl font-bold block font-heading" style="color:#b7920a">0</span>
+                </div>
+                <div class="card-app p-5 kpi-rojo">
+                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#616161">Rechazados</span>
+                    <span id="kpiHistRechazados" class="text-4xl font-bold block font-heading" style="color:#e53935">0</span>
+                </div>
+            </div>
+
+            <!-- Medidor de cuota anual -->
+            <div class="card-app px-6 py-5">
+                <div class="flex justify-between items-center mb-3">
+                    <div>
+                        <h3 class="text-sm font-bold font-heading" style="color:#1E1C66">📊 Cuota Anual de Beneficios</h3>
+                        <p class="text-xs mt-0.5" style="color:#616161">Máximo 15 beneficios por año (Trabajo desde casa y Desconexión temprana no cuentan)</p>
+                    </div>
+                    <span id="kpiHistCuotaTexto" class="text-2xl font-bold font-heading" style="color:#1E1C66">0/15</span>
+                </div>
+                <div style="background:#ECEFF1;border-radius:30px;height:14px;overflow:hidden">
+                    <div id="barraHistCuota" style="width:0%;height:100%;background:linear-gradient(90deg,#1E1C66,#00A6B8);border-radius:30px;transition:width 0.8s ease"></div>
+                </div>
+                <div class="flex justify-between mt-2">
+                    <span class="text-[10px] font-medium" style="color:#616161">0</span>
+                    <span id="kpiHistDisponibles" class="text-[10px] font-bold" style="color:#00A6B8">15 disponibles</span>
+                    <span class="text-[10px] font-medium" style="color:#616161">15</span>
+                </div>
+            </div>
+
+            <!-- Tabla historial personal -->
+            <div class="card-app overflow-hidden">
+                <div class="px-6 py-4 border-b" style="border-color:#ECEFF1;background:#f8f9ff">
+                    <h3 class="text-sm font-bold font-heading" style="color:#1E1C66">📋 Mis Solicitudes</h3>
+                    <p class="text-xs mt-0.5" style="color:#616161">Todas tus solicitudes radicadas — ordenadas por más reciente</p>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead><tr style="background:#f8f9ff;border-bottom:2px solid #ECEFF1">
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1E1C66;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Beneficio / Trámite</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1E1C66;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Radicado</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1E1C66;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Disfrute</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1E1C66;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Cuenta en cuota</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1E1C66;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Estado</th>
+                        </tr></thead>
+                        <tbody id="tbodyHistorial"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
         <!-- Panel B: Mi Equipo -->
         <div id="seccionDashboardEquipo" style="display:none" class="space-y-6">
