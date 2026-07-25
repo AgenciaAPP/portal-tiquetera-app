@@ -282,16 +282,32 @@ function avatarDiv(nombre, size=28, bg='#1878ba') {
 
 function serverRow(reg) {
     const nombre = getNombre(reg.Title);
-    return `<tr style="border-bottom:1px solid #f1f5f9;transition:background 0.15s" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background=''">
+    return `<tr style="border-bottom:1px solid #f0f0f0;transition:background 0.15s" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''">
         <td style="padding:12px 16px">
             <div style="display:flex;align-items:center;gap:8px">
                 ${avatarDiv(nombre)}
-                <div><div style="font-size:12px;font-weight:700;color:#1e293b">${nombre}</div><div style="font-size:10px;color:#94a3b8">${reg.Title}</div></div>
+                <div><div style="font-size:12px;font-weight:700;color:#222222;font-family:'Montserrat',sans-serif">${nombre}</div><div style="font-size:10px;color:#6a6a6a">${reg.Title}</div></div>
             </div>
         </td>
-        <td style="padding:12px 16px;font-size:12px;font-weight:600;color:#334155;max-width:180px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${reg.PermisoSolicitado||''}">${reg.PermisoSolicitado||'—'}</span></td>
-        <td style="padding:12px 16px;font-size:11px;color:#64748b;white-space:nowrap">${formatFecha(reg.Created)}</td>
-        <td style="padding:12px 16px;font-size:11px;color:#64748b;white-space:nowrap">${formatFecha(reg.FechaSolicitud||reg.FechaInicio)}</td>
+        <td style="padding:12px 16px;font-size:12px;font-weight:600;color:#333333;max-width:180px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${reg.PermisoSolicitado||''}">${reg.PermisoSolicitado||'—'}</span></td>
+        <td style="padding:12px 16px;font-size:11px;color:#6a6a6a;white-space:nowrap">${formatFecha(reg.Created)}</td>
+        <td style="padding:12px 16px;font-size:11px;color:#6a6a6a;white-space:nowrap">${formatFecha(reg.FechaSolicitud||reg.FechaInicio)}</td>
+        <td style="padding:12px 16px">${badge(getEstado(reg))}</td>
+    </tr>`;
+}
+
+// Fila para tabla TH — sin columna Fecha Radicado
+function serverRowTH(reg) {
+    const nombre = getNombre(reg.Title);
+    return `<tr style="border-bottom:1px solid #f0f0f0;transition:background 0.15s" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''">
+        <td style="padding:12px 16px">
+            <div style="display:flex;align-items:center;gap:8px">
+                ${avatarDiv(nombre)}
+                <div><div style="font-size:12px;font-weight:700;color:#222222;font-family:'Montserrat',sans-serif">${nombre}</div><div style="font-size:10px;color:#6a6a6a">${reg.Title}</div></div>
+            </div>
+        </td>
+        <td style="padding:12px 16px;font-size:12px;font-weight:600;color:#333333;max-width:200px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${reg.PermisoSolicitado||''}">${reg.PermisoSolicitado||'—'}</span></td>
+        <td style="padding:12px 16px;font-size:11px;color:#6a6a6a;white-space:nowrap">${formatFecha(reg.FechaSolicitud||reg.FechaInicio)}</td>
         <td style="padding:12px 16px">${badge(getEstado(reg))}</td>
     </tr>`;
 }
@@ -626,7 +642,7 @@ function renderDashboardTH() {
     renderRankingServidores(aplicarFiltroFecha(historicoPermisosEquipo,'filtroTHDesde','filtroTHHasta'));
     tbodyHistoricoTH.innerHTML = [...histFiltrado]
         .sort((a,b)=>new Date(b.Created||0)-new Date(a.Created||0))
-        .map(serverRow).join('') ||
+        .map(serverRowTH).join('') ||
         `<tr><td colspan="5" style="padding:32px;text-align:center;font-size:11px;color:#94a3b8;text-transform:uppercase">No hay registros que coincidan.</td></tr>`;
 }
 
