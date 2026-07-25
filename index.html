@@ -375,10 +375,24 @@
                     </div>
                     <p class="text-xs mt-1 ml-4" style="color:#6a6a6a">Todas tus solicitudes radicadas — ordenadas por más reciente</p>
                 </div>
+            <div class="px-6 py-3 border-b flex items-center gap-3" style="border-color:#f0f0f0;background:#fafafa">
+                    <span class="text-xs font-bold uppercase tracking-wider font-heading" style="color:#1878ba">🔎 Filtrar:</span>
+                    <select id="filtroHistTipo" onchange="renderHistorial()" class="input-app py-2 px-3 text-xs">
+                        <option value="">Todos los tipos</option>
+                        <option value="Tiquetera">🎟️ Tiquetera Emocional</option>
+                        <option value="Administrativos">💼 Situación Administrativa</option>
+                    </select>
+                    <button onclick="document.getElementById('filtroHistTipo').value='';renderHistorial()"
+                            class="text-xs font-semibold px-3 py-2 rounded-xl transition-all"
+                            style="color:#6a6a6a"
+                            onmouseover="this.style.color='#cb6c59';this.style.background='#fdf3f1'"
+                            onmouseout="this.style.color='#6a6a6a';this.style.background='transparent'">✕ Limpiar</button>
+                </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead><tr style="background:#fafafa;border-bottom:2px solid #f0f0f0">
                             <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Beneficio / Trámite</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Tipo</th>
                             <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Disfrute</th>
                             <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Cuenta en cuota</th>
                             <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Estado</th>
@@ -401,6 +415,11 @@
                         <option value="aprobado">✔ Aprobado</option>
                         <option value="rechazado">✘ Rechazado</option>
                         <option value="pendiente">⏳ Pendiente</option>
+                    </select>
+                    <select id="filtroEquipoTipo" onchange="aplicarFiltrosEquipo()" class="input-app py-2 px-3 text-xs">
+                        <option value="">Todos los tipos</option>
+                        <option value="Tiquetera">🎟️ Tiquetera Emocional</option>
+                        <option value="Administrativos">💼 Situación Administrativa</option>
                     </select>
                     <select id="filtroEquipoBeneficio" onchange="aplicarFiltrosEquipo()" class="input-app py-2 px-3 text-xs max-w-[220px]">
                         <option value="">Todos los beneficios</option>
@@ -490,6 +509,7 @@
                         <thead><tr style="background:#fafafa;border-bottom:2px solid #f0f0f0">
                             <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Servidor</th>
                             <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Beneficio / Trámite</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Tipo</th>
                             <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Radicado</th>
                             <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Disfrute</th>
                             <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Estado</th>
@@ -523,6 +543,11 @@
                         <option value="aprobado">✔ Aprobado</option>
                         <option value="rechazado">✘ Rechazado</option>
                         <option value="pendiente">⏳ Pendiente</option>
+                    </select>
+                    <select id="filtroTHTipo" onchange="aplicarFiltrosTH()" class="input-app py-2 px-3 text-xs">
+                        <option value="">Todos los tipos</option>
+                        <option value="Tiquetera">🎟️ Tiquetera Emocional</option>
+                        <option value="Administrativos">💼 Situación Administrativa</option>
                     </select>
                     <select id="filtroTHBeneficio" onchange="aplicarFiltrosTH()" class="input-app py-2 px-3 text-xs max-w-[220px]">
                         <option value="">Todos los beneficios</option>
@@ -618,6 +643,7 @@
                         <thead style="position:sticky;top:0;z-index:1"><tr style="background:#fafafa;border-bottom:2px solid #f0f0f0">
                             <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Servidor</th>
                             <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Beneficio / Trámite</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Tipo</th>
                             <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Disfrute</th>
                             <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Estado</th>
                         </tr></thead>
