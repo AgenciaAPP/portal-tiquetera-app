@@ -9,160 +9,220 @@
     <style>
         * { font-family: 'Nunito', sans-serif; }
         h1, h2, h3, h4, h5, h6, .font-heading { font-family: 'Montserrat', sans-serif; }
+
         :root {
-            --app-azul:    #1E1C66;
-            --app-cian:    #00A6B8;
-            --app-amarillo:#FDDA2F;
-            --app-gris:    #3C3C3C;
-            --app-gris2:   #616161;
-            --app-fondo:   #ECEFF1;
+            --app-amarillo:  #ffd500;
+            --app-gris:      #6a6a6a;
+            --app-azul:      #1878ba;
+            --app-terracota: #cb6c59;
+            --app-negro:     #222222;
+            --app-fondo:     #f4f4f4;
+            --app-texto:     #333333;
         }
-        body { background-color: #ECEFF1; }
+
+        body { background-color: #f4f4f4; color: #333333; }
+
+        /* Strip amarillo */
+        .strip-amarillo { background: #ffd500; height: 6px; width: 100%; }
 
         /* Tabs */
-        .tab-activo   { border-bottom: 3px solid #1E1C66; color: #1E1C66; font-weight: 700; }
-        .tab-inactivo { border-bottom: 3px solid transparent; color: #616161; }
-        .tab-inactivo:hover { color: #1E1C66; border-color: #00A6B8; }
+        .tab-activo   { border-bottom: 3px solid #ffd500; color: #222222; font-weight: 700; background: transparent; }
+        .tab-inactivo { border-bottom: 3px solid transparent; color: #6a6a6a; background: transparent; }
+        .tab-inactivo:hover { color: #222222; border-color: #ffd500; }
 
-        /* Botón primario */
-        .btn-app { background: #1E1C66; color: white; border-radius: 30px; font-family: 'Montserrat', sans-serif; font-weight: 700; transition: all 0.2s; }
-        .btn-app:hover { background: #00A6B8; }
-        .btn-app:disabled { background: #ECEFF1; color: #b7b7b7; cursor: not-allowed; }
+        /* Botón primario — amarillo */
+        .btn-app {
+            background: #ffd500;
+            color: #222222;
+            border-radius: 30px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            transition: all 0.2s;
+            border: none;
+        }
+        .btn-app:hover { background: #e6c000; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(255,213,0,0.4); }
+        .btn-app:disabled { background: #e0e0e0; color: #aaaaaa; cursor: not-allowed; transform: none; box-shadow: none; }
 
-        /* Botón amarillo */
-        .btn-app-yellow { background: #FDDA2F; color: #1E1C66; border-radius: 30px; font-family: 'Montserrat', sans-serif; font-weight: 700; transition: all 0.2s; }
-        .btn-app-yellow:hover { background: #e5c528; }
+        /* Botón secundario — gris oscuro */
+        .btn-app-sec {
+            background: #6a6a6a;
+            color: white;
+            border-radius: 30px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+        .btn-app-sec:hover { background: #555555; }
 
         /* Cards */
-        .card-app { background: white; border-radius: 20px; box-shadow: 0 2px 12px rgba(30,28,102,0.08); transition: box-shadow 0.2s; }
-        .card-app:hover { box-shadow: 0 6px 24px rgba(30,28,102,0.15); }
+        .card-app {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .card-app:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
 
-        /* Badge cian */
-        .badge-cian { background: #e0f7fa; color: #00A6B8; border: 1px solid #b2ebf2; border-radius: 30px; }
-        .badge-azul { background: #ede7f6; color: #1E1C66; border: 1px solid #d1c4e9; border-radius: 30px; }
-        .badge-amarillo { background: #fffde7; color: #b7920a; border: 1px solid #fff176; border-radius: 30px; }
+        /* KPI borders */
+        .kpi-azul     { border-top: 4px solid #1878ba; }
+        .kpi-amarillo { border-top: 4px solid #ffd500; }
+        .kpi-verde    { border-top: 4px solid #43A047; }
+        .kpi-terra    { border-top: 4px solid #cb6c59; }
+        .kpi-gris     { border-top: 4px solid #6a6a6a; }
 
         /* Input */
-        .input-app { border: 2px solid #ECEFF1; border-radius: 12px; transition: border 0.2s; font-family: 'Nunito', sans-serif; }
-        .input-app:focus { border-color: #1E1C66; outline: none; box-shadow: 0 0 0 3px rgba(30,28,102,0.1); }
-
-        /* Header strip amarillo */
-        .header-strip { background: #FDDA2F; height: 6px; width: 100%; }
-
-        /* KPI cards */
-        .kpi-azul    { border-top: 4px solid #1E1C66; }
-        .kpi-cian    { border-top: 4px solid #00A6B8; }
-        .kpi-verde   { border-top: 4px solid #43A047; }
-        .kpi-amarillo{ border-top: 4px solid #FDDA2F; }
-        .kpi-rojo    { border-top: 4px solid #e53935; }
-        .kpi-gris    { border-top: 4px solid #90A4AE; }
+        .input-app {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            transition: border 0.2s;
+            font-family: 'Nunito', sans-serif;
+            color: #333333;
+            background: white;
+        }
+        .input-app:focus { border-color: #1878ba; outline: none; box-shadow: 0 0 0 3px rgba(24,120,186,0.12); }
 
         /* Spinner */
         @keyframes spin { to { transform: rotate(360deg); } }
         .spinner { animation: spin 1s linear infinite; }
+
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f4f4f4; }
+        ::-webkit-scrollbar-thumb { background: #6a6a6a; border-radius: 3px; }
     </style>
 </head>
 <body>
 
 <!-- Strip amarillo institucional -->
-<div class="header-strip"></div>
+<div class="strip-amarillo"></div>
 
 <!-- HEADER -->
-<header style="background:#1E1C66;" class="shadow-lg">
+<header style="background:#222222;" class="shadow-lg">
     <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div class="flex items-center gap-4">
             <img src="https://cdn.jsdelivr.net/gh/AgenciaAPP/PaginaWebComunicaciones@main/logoagenciaappfull.svg"
-                 alt="Agencia APP" class="h-12 brightness-0 invert" onerror="this.style.display='none'">
-            <div class="border-l border-white/30 pl-4">
-                <h1 class="font-heading text-white text-base font-bold leading-tight">Portal de Solicitudes</h1>
-                <p class="text-white/70 text-xs font-medium">Tiquetera Emocional y Situaciones Administrativas</p>
+                 alt="Agencia APP" class="h-11 brightness-0 invert"
+                 onerror="this.style.display='none'">
+            <div class="border-l border-white/20 pl-4">
+                <h1 class="font-heading text-white text-sm font-bold leading-tight tracking-wide">Portal de Solicitudes</h1>
+                <p class="text-white/50 text-xs mt-0.5">Tiquetera Emocional y Situaciones Administrativas</p>
             </div>
         </div>
 
         <!-- Header usuario -->
         <div id="headerUsuario" style="display:none"
-             class="flex items-center gap-3 bg-white/10 border border-white/20 px-4 py-2.5 rounded-2xl w-full lg:w-auto justify-between lg:justify-start backdrop-blur-sm">
+             class="flex items-center gap-3 px-4 py-2.5 rounded-2xl w-full lg:w-auto justify-between lg:justify-start"
+             style="background:rgba(255,213,0,0.12);border:1px solid rgba(255,213,0,0.25)">
             <div class="flex items-center gap-3">
                 <div id="avatarUsuario"
                      class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 font-heading"
-                     style="background:#FDDA2F;color:#1E1C66">--</div>
+                     style="background:#ffd500;color:#222222">--</div>
                 <div>
                     <div class="flex items-center gap-2 mb-0.5">
-                        <span class="text-[10px] font-bold text-yellow-300 uppercase tracking-wider leading-none font-heading">Servidor Público Activo</span>
+                        <span class="text-[10px] font-bold uppercase tracking-wider leading-none font-heading"
+                              style="color:#ffd500">Servidor Público Activo</span>
                         <span class="relative flex h-2 w-2">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                                  style="background:#43A047"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2" style="background:#43A047"></span>
                         </span>
                     </div>
                     <div class="flex items-center gap-2">
-                        <span class="text-xs text-white/60">Bienvenido,</span>
+                        <span class="text-xs text-white/50">Bienvenido,</span>
                         <span id="lblNombreUsuario" class="font-bold text-white text-sm leading-none font-heading">---</span>
-                        <span class="text-white/30">|</span>
-                        <span id="lblCedulaUsuario" class="text-white/60 text-xs leading-none">---</span>
+                        <span class="text-white/20">|</span>
+                        <span id="lblCedulaUsuario" class="text-white/40 text-xs leading-none">---</span>
                     </div>
                 </div>
             </div>
             <button type="button" id="btnCerrarSesion"
-                    class="text-white/50 hover:text-yellow-300 hover:bg-white/10 p-2 rounded-xl transition-all ml-2" title="Cerrar Sesión">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    class="text-white/30 hover:text-white p-2 rounded-xl transition-all ml-2"
+                    title="Cerrar Sesión">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
             </button>
         </div>
     </div>
 </header>
 
+<!-- Barra azul decorativa bajo el header -->
+<div style="height:3px;background:linear-gradient(90deg,#1878ba,#ffd500)"></div>
+
 <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
 
     <!-- LOGIN -->
     <div id="seccionLogin" class="max-w-md mx-auto card-app p-8 text-center my-12">
-        <div class="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-5"
-             style="background:#1E1C66">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+        <!-- Ícono -->
+        <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
+             style="background:#ffd500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
+                 stroke="#222222" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
             </svg>
         </div>
-        <h2 class="font-heading text-xl font-bold mb-2" style="color:#1E1C66">Validación de Funcionario</h2>
-        <div class="w-12 h-1 rounded-full mx-auto mb-4" style="background:#FDDA2F"></div>
-        <p class="text-sm mb-6" style="color:#616161">Ingresa tu número de documento para verificar tu estado y cargar tus beneficios disponibles.</p>
+        <h2 class="font-heading text-xl font-bold mb-2" style="color:#222222">Validación de Funcionario</h2>
+        <div class="w-12 h-1 rounded-full mx-auto mb-4" style="background:#ffd500"></div>
+        <p class="text-sm mb-6" style="color:#6a6a6a">Ingresa tu número de documento para verificar tu estado y cargar tus beneficios disponibles.</p>
         <div class="space-y-4">
             <input type="text" id="txtCedulaIngreso"
                    class="input-app w-full text-center p-3 text-lg font-bold tracking-wider"
                    placeholder="Número de Cédula"
-                   style="font-family:'Montserrat',sans-serif;color:#1E1C66">
+                   style="font-family:'Montserrat',sans-serif;color:#222222">
             <button type="button" id="btnValidarCedula"
                     class="btn-app w-full py-3 px-6 flex items-center justify-center gap-2 text-sm">
-                <svg id="spinnerLoading" style="display:none" class="spinner h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <svg id="spinnerLoading" style="display:none" class="spinner h-5 w-5"
+                     xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="#222222" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="#222222"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
                 <span id="txtBtnValidar">Verificar Documento</span>
             </button>
             <p id="lblErrorLogin" style="display:none"
-               class="text-red-600 text-xs font-semibold bg-red-50 border border-red-100 py-2.5 px-4 rounded-xl">
+               class="text-xs font-semibold py-2.5 px-4 rounded-xl"
+               style="background:#fdf0ee;border:1px solid #cb6c59;color:#cb6c59">
                ⚠️ Funcionario no habilitado o no encontrado en la base de datos.
             </p>
         </div>
     </div>
 
-    <!-- PORTAL -->
+    <!-- PORTAL PRINCIPAL -->
     <div id="seccionContenidoPortal" style="display:none">
 
         <!-- Tabs -->
-        <div class="border-b mb-8" style="border-color:#d0d5e8">
-            <nav class="flex space-x-6">
-                <button id="tabTiquetera"       class="tab-activo font-heading whitespace-nowrap py-4 px-1 text-sm transition-all focus:outline-none">🎟️ Tiquetera Emocional</button>
-                <button id="tabAdministrativos" class="tab-inactivo font-heading whitespace-nowrap py-4 px-1 text-sm transition-all focus:outline-none">💼 Situaciones Administrativas</button>
-                <button id="tabHistorial"       class="tab-inactivo font-heading whitespace-nowrap py-4 px-1 text-sm transition-all focus:outline-none">📋 Mi Historial</button>
-                <button id="tabEquipo"          style="display:none" class="tab-inactivo font-heading whitespace-nowrap py-4 px-1 text-sm transition-all focus:outline-none">👥 Mi Equipo</button>
-                <button id="tabAnaliticaTH"     style="display:none" class="tab-inactivo font-heading whitespace-nowrap py-4 px-1 text-sm transition-all focus:outline-none">📊 Gestión Talento Humano</button>
+        <div class="mb-8" style="border-bottom:2px solid #e0e0e0">
+            <nav class="flex space-x-6 overflow-x-auto">
+                <button id="tabTiquetera"
+                        class="tab-activo font-heading whitespace-nowrap py-4 px-1 text-sm transition-all focus:outline-none">
+                    🎟️ Tiquetera Emocional
+                </button>
+                <button id="tabAdministrativos"
+                        class="tab-inactivo font-heading whitespace-nowrap py-4 px-1 text-sm transition-all focus:outline-none">
+                    💼 Situaciones Administrativas
+                </button>
+                <button id="tabHistorial"
+                        class="tab-inactivo font-heading whitespace-nowrap py-4 px-1 text-sm transition-all focus:outline-none">
+                    📋 Mi Historial
+                </button>
+                <button id="tabEquipo" style="display:none"
+                        class="tab-inactivo font-heading whitespace-nowrap py-4 px-1 text-sm transition-all focus:outline-none">
+                    👥 Mi Equipo
+                </button>
+                <button id="tabAnaliticaTH" style="display:none"
+                        class="tab-inactivo font-heading whitespace-nowrap py-4 px-1 text-sm transition-all focus:outline-none">
+                    📊 Gestión Talento Humano
+                </button>
             </nav>
         </div>
 
         <!-- Banner límite anual -->
-        <div id="bannerLimiteAnual" style="display:none;margin-bottom:20px;padding:14px 20px;border-radius:20px;font-size:13px;font-weight:600;line-height:1.5;font-family:'Nunito',sans-serif"></div>
+        <div id="bannerLimiteAnual" style="display:none;margin-bottom:20px;padding:14px 20px;border-radius:16px;font-size:13px;font-weight:600;line-height:1.5;font-family:'Nunito',sans-serif"></div>
 
-        <!-- Píldoras de categoría (solo tiquetera) -->
+        <!-- Píldoras de categoría -->
         <div id="contenedorPildoras" style="display:none;flex-wrap:wrap;gap:8px;margin-bottom:20px"></div>
 
         <!-- Panel A: Grid beneficios -->
@@ -170,61 +230,59 @@
 
         <!-- Panel Mi Historial -->
         <div id="seccionHistorial" style="display:none" class="space-y-6">
-
-            <!-- KPIs personales -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div class="card-app p-5 kpi-azul">
-                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#616161">Usados este año</span>
-                    <span id="kpiHistUsados" class="text-4xl font-bold block font-heading" style="color:#1E1C66">0</span>
-                    <span class="text-[10px] mt-1 block font-medium" style="color:#616161">de 15 disponibles</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#6a6a6a">Usados este año</span>
+                    <span id="kpiHistUsados" class="text-4xl font-bold block font-heading" style="color:#1878ba">0</span>
+                    <span class="text-[10px] mt-1 block font-medium" style="color:#6a6a6a">de 15 disponibles</span>
                 </div>
                 <div class="card-app p-5 kpi-verde">
-                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#616161">Aprobados</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#6a6a6a">Aprobados</span>
                     <span id="kpiHistAprobados" class="text-4xl font-bold block font-heading" style="color:#43A047">0</span>
                 </div>
                 <div class="card-app p-5 kpi-amarillo">
-                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#616161">Pendientes</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#6a6a6a">Pendientes</span>
                     <span id="kpiHistPendientes" class="text-4xl font-bold block font-heading" style="color:#b7920a">0</span>
                 </div>
-                <div class="card-app p-5 kpi-rojo">
-                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#616161">Rechazados</span>
-                    <span id="kpiHistRechazados" class="text-4xl font-bold block font-heading" style="color:#e53935">0</span>
+                <div class="card-app p-5 kpi-terra">
+                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#6a6a6a">Rechazados</span>
+                    <span id="kpiHistRechazados" class="text-4xl font-bold block font-heading" style="color:#cb6c59">0</span>
                 </div>
             </div>
 
-            <!-- Medidor de cuota anual -->
+            <!-- Medidor cuota -->
             <div class="card-app px-6 py-5">
                 <div class="flex justify-between items-center mb-3">
                     <div>
-                        <h3 class="text-sm font-bold font-heading" style="color:#1E1C66">📊 Cuota Anual de Beneficios</h3>
-                        <p class="text-xs mt-0.5" style="color:#616161">Máximo 15 beneficios por año (Trabajo desde casa y Desconexión temprana no cuentan)</p>
+                        <h3 class="text-sm font-bold font-heading" style="color:#222222">📊 Cuota Anual de Beneficios</h3>
+                        <p class="text-xs mt-0.5" style="color:#6a6a6a">Máximo 15 beneficios por año (Trabajo desde casa y Desconexión temprana no cuentan)</p>
                     </div>
-                    <span id="kpiHistCuotaTexto" class="text-2xl font-bold font-heading" style="color:#1E1C66">0/15</span>
+                    <span id="kpiHistCuotaTexto" class="text-2xl font-bold font-heading" style="color:#1878ba">0/15</span>
                 </div>
-                <div style="background:#ECEFF1;border-radius:30px;height:14px;overflow:hidden">
-                    <div id="barraHistCuota" style="width:0%;height:100%;background:linear-gradient(90deg,#1E1C66,#00A6B8);border-radius:30px;transition:width 0.8s ease"></div>
+                <div style="background:#f0f0f0;border-radius:30px;height:14px;overflow:hidden">
+                    <div id="barraHistCuota" style="width:0%;height:100%;background:linear-gradient(90deg,#1878ba,#ffd500);border-radius:30px;transition:width 0.8s ease"></div>
                 </div>
                 <div class="flex justify-between mt-2">
-                    <span class="text-[10px] font-medium" style="color:#616161">0</span>
-                    <span id="kpiHistDisponibles" class="text-[10px] font-bold" style="color:#00A6B8">15 disponibles</span>
-                    <span class="text-[10px] font-medium" style="color:#616161">15</span>
+                    <span class="text-[10px] font-medium" style="color:#6a6a6a">0</span>
+                    <span id="kpiHistDisponibles" class="text-[10px] font-bold" style="color:#1878ba">15 disponibles</span>
+                    <span class="text-[10px] font-medium" style="color:#6a6a6a">15</span>
                 </div>
             </div>
 
-            <!-- Tabla historial personal -->
+            <!-- Tabla historial -->
             <div class="card-app overflow-hidden">
-                <div class="px-6 py-4 border-b" style="border-color:#ECEFF1;background:#f8f9ff">
-                    <h3 class="text-sm font-bold font-heading" style="color:#1E1C66">📋 Mis Solicitudes</h3>
-                    <p class="text-xs mt-0.5" style="color:#616161">Todas tus solicitudes radicadas — ordenadas por más reciente</p>
+                <div class="px-6 py-4 border-b" style="border-color:#f0f0f0;background:#fafafa">
+                    <h3 class="text-sm font-bold font-heading" style="color:#222222">📋 Mis Solicitudes</h3>
+                    <p class="text-xs mt-0.5" style="color:#6a6a6a">Todas tus solicitudes radicadas — ordenadas por más reciente</p>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
-                        <thead><tr style="background:#f8f9ff;border-bottom:2px solid #ECEFF1">
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1E1C66;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Beneficio / Trámite</th>
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1E1C66;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Radicado</th>
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1E1C66;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Disfrute</th>
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1E1C66;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Cuenta en cuota</th>
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1E1C66;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Estado</th>
+                        <thead><tr style="background:#fafafa;border-bottom:2px solid #f0f0f0">
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Beneficio / Trámite</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Radicado</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Disfrute</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Cuenta en cuota</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Estado</th>
                         </tr></thead>
                         <tbody id="tbodyHistorial"></tbody>
                     </table>
@@ -232,72 +290,79 @@
             </div>
         </div>
 
-        <!-- Panel B: Mi Equipo -->
+        <!-- Panel Mi Equipo -->
         <div id="seccionDashboardEquipo" style="display:none" class="space-y-6">
 
             <!-- Filtros -->
             <div class="card-app px-6 py-4">
                 <div class="flex flex-wrap items-center gap-3">
-                    <span class="text-xs font-bold uppercase tracking-wider font-heading" style="color:#1E1C66">🔎 Filtrar:</span>
-                    <input id="filtroEquipoBusqueda" type="text" placeholder="Nombre o cédula..." oninput="aplicarFiltrosEquipo()"
-                        class="input-app py-2 px-3 text-xs min-w-[150px]" style="color:#3C3C3C">
-                    <select id="filtroEquipoEstado" onchange="aplicarFiltrosEquipo()" class="input-app py-2 px-3 text-xs" style="color:#3C3C3C">
+                    <span class="text-xs font-bold uppercase tracking-wider font-heading" style="color:#1878ba">🔎 Filtrar:</span>
+                    <input id="filtroEquipoBusqueda" type="text" placeholder="Nombre o cédula..."
+                           oninput="aplicarFiltrosEquipo()" class="input-app py-2 px-3 text-xs min-w-[150px]">
+                    <select id="filtroEquipoEstado" onchange="aplicarFiltrosEquipo()" class="input-app py-2 px-3 text-xs">
                         <option value="">Todos los estados</option>
                         <option value="aprobado">✔ Aprobado</option>
                         <option value="rechazado">✘ Rechazado</option>
                         <option value="pendiente">⏳ Pendiente</option>
                     </select>
-                    <select id="filtroEquipoBeneficio" onchange="aplicarFiltrosEquipo()" class="input-app py-2 px-3 text-xs max-w-[220px]" style="color:#3C3C3C">
+                    <select id="filtroEquipoBeneficio" onchange="aplicarFiltrosEquipo()"
+                            class="input-app py-2 px-3 text-xs max-w-[220px]">
                         <option value="">Todos los beneficios</option>
                     </select>
                     <div class="flex items-center gap-2">
-                        <span class="text-xs font-medium" style="color:#616161">Desde</span>
-                        <input id="filtroEquipoDesde" type="date" onchange="aplicarFiltrosEquipo()" class="input-app py-2 px-3 text-xs" style="color:#3C3C3C">
-                        <span class="text-xs font-medium" style="color:#616161">Hasta</span>
-                        <input id="filtroEquipoHasta" type="date" onchange="aplicarFiltrosEquipo()" class="input-app py-2 px-3 text-xs" style="color:#3C3C3C">
+                        <span class="text-xs font-medium" style="color:#6a6a6a">Desde</span>
+                        <input id="filtroEquipoDesde" type="date" onchange="aplicarFiltrosEquipo()"
+                               class="input-app py-2 px-3 text-xs">
+                        <span class="text-xs font-medium" style="color:#6a6a6a">Hasta</span>
+                        <input id="filtroEquipoHasta" type="date" onchange="aplicarFiltrosEquipo()"
+                               class="input-app py-2 px-3 text-xs">
                     </div>
                     <button onclick="document.getElementById('filtroEquipoBusqueda').value='';document.getElementById('filtroEquipoEstado').value='';document.getElementById('filtroEquipoBeneficio').value='';document.getElementById('filtroEquipoDesde').value='';document.getElementById('filtroEquipoHasta').value='';aplicarFiltrosEquipo()"
-                        class="text-xs font-semibold px-3 py-2 rounded-xl transition-all hover:bg-red-50 hover:text-red-500" style="color:#616161">✕ Limpiar</button>
+                            class="text-xs font-semibold px-3 py-2 rounded-xl transition-all hover:bg-red-50"
+                            style="color:#6a6a6a">✕ Limpiar</button>
                 </div>
             </div>
 
-            <!-- KPIs fila 1 -->
+            <!-- KPIs equipo fila 1 -->
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                 <div class="card-app p-5 kpi-azul lg:col-span-2">
-                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#616161">Colaboradores</span>
-                    <span id="kpiTotalEquipo" class="text-4xl font-bold block font-heading" style="color:#1E1C66">0</span>
-                    <span class="text-[10px] mt-1 block" style="color:#616161">a tu cargo</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#6a6a6a">Colaboradores</span>
+                    <span id="kpiTotalEquipo" class="text-4xl font-bold block font-heading" style="color:#1878ba">0</span>
+                    <span class="text-[10px] mt-1 block" style="color:#6a6a6a">a tu cargo</span>
                 </div>
                 <div class="card-app p-5 kpi-gris lg:col-span-2">
-                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#616161">Solicitudes</span>
-                    <span id="kpiTotalHistoricoEquipo" class="text-4xl font-bold block font-heading" style="color:#3C3C3C">0</span>
-                    <span class="text-[10px] mt-1 block" style="color:#616161">en el período</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#6a6a6a">Solicitudes</span>
+                    <span id="kpiTotalHistoricoEquipo" class="text-4xl font-bold block font-heading" style="color:#333333">0</span>
+                    <span class="text-[10px] mt-1 block" style="color:#6a6a6a">en el período</span>
                 </div>
                 <div class="card-app p-5 kpi-verde">
-                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#616161">Aprobados</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#6a6a6a">Aprobados</span>
                     <span id="kpiAprobadosEquipo" class="text-3xl font-bold block font-heading" style="color:#43A047">0</span>
                 </div>
                 <div class="card-app p-5 kpi-amarillo">
-                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#616161">Pendientes</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#6a6a6a">Pendientes</span>
                     <span id="kpiPendientesEquipo" class="text-3xl font-bold block font-heading" style="color:#b7920a">0</span>
                 </div>
             </div>
 
-            <!-- KPIs fila 2 -->
+            <!-- KPIs equipo fila 2 -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="card-app p-5 kpi-rojo">
-                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#616161">Rechazados</span>
-                    <span id="kpiRechazadosEquipo" class="text-3xl font-bold block font-heading" style="color:#e53935">0</span>
+                <div class="card-app p-5 kpi-terra">
+                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#6a6a6a">Rechazados</span>
+                    <span id="kpiRechazadosEquipo" class="text-3xl font-bold block font-heading" style="color:#cb6c59">0</span>
                 </div>
-                <div class="card-app p-5 kpi-cian">
-                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#616161">Tasa de Aprobación</span>
-                    <span id="kpiTasaAprobacion" class="text-3xl font-bold block font-heading" style="color:#00A6B8">—</span>
+                <div class="card-app p-5 kpi-azul">
+                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#6a6a6a">Tasa de Aprobación</span>
+                    <span id="kpiTasaAprobacion" class="text-3xl font-bold block font-heading" style="color:#1878ba">—</span>
                 </div>
-                <div class="card-app px-5 py-5 flex items-center gap-3" style="background:linear-gradient(135deg,#1E1C66,#00A6B8)">
+                <div class="card-app px-5 py-5 flex items-center gap-3"
+                     style="background:linear-gradient(135deg,#222222,#6a6a6a)">
                     <span class="text-2xl">🏆</span>
                     <div>
-                        <span class="text-[10px] font-bold uppercase tracking-wider block text-white/70 font-heading">Más solicitado</span>
-                        <span id="kpiTopTramiteEquipo" class="text-xs font-bold block mt-0.5 leading-snug text-white font-heading">—</span>
+                        <span class="text-[10px] font-bold uppercase tracking-wider block font-heading"
+                              style="color:#ffd500">Más solicitado</span>
+                        <span id="kpiTopTramiteEquipo"
+                              class="text-xs font-bold block mt-0.5 leading-snug text-white font-heading">—</span>
                     </div>
                 </div>
             </div>
@@ -305,16 +370,18 @@
             <!-- Gráfica + Tarjetas -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 <div class="card-app overflow-hidden">
-                    <div class="px-6 py-4 border-b" style="border-color:#ECEFF1;background:#f8f9ff">
-                        <h3 class="text-sm font-bold font-heading" style="color:#1E1C66">📊 Distribución por Beneficio</h3>
-                        <p class="text-xs mt-0.5" style="color:#616161">Beneficios más solicitados en el período</p>
+                    <div class="px-6 py-4 border-b" style="border-color:#f0f0f0;background:#fafafa">
+                        <h3 class="text-sm font-bold font-heading" style="color:#222222">📊 Distribución por Beneficio</h3>
+                        <p class="text-xs mt-0.5" style="color:#6a6a6a">Beneficios más solicitados en el período</p>
                     </div>
-                    <div class="p-6" id="graficaBeneficiosEquipo"><p class="text-xs text-center py-4" style="color:#b7b7b7">Sin datos.</p></div>
+                    <div class="p-6" id="graficaBeneficiosEquipo">
+                        <p class="text-xs text-center py-4" style="color:#aaaaaa">Sin datos.</p>
+                    </div>
                 </div>
                 <div class="card-app overflow-hidden">
-                    <div class="px-6 py-4 border-b" style="border-color:#ECEFF1;background:#f8f9ff">
-                        <h3 class="text-sm font-bold font-heading" style="color:#1E1C66">👤 Estado por Colaborador</h3>
-                        <p class="text-xs mt-0.5" style="color:#616161">Resumen individual de solicitudes</p>
+                    <div class="px-6 py-4 border-b" style="border-color:#f0f0f0;background:#fafafa">
+                        <h3 class="text-sm font-bold font-heading" style="color:#222222">👤 Estado por Colaborador</h3>
+                        <p class="text-xs mt-0.5" style="color:#6a6a6a">Resumen individual de solicitudes</p>
                     </div>
                     <div class="p-4 overflow-y-auto" style="max-height:320px">
                         <div id="gridTarjetasServidores" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
@@ -324,18 +391,18 @@
 
             <!-- Tabla equipo -->
             <div class="card-app overflow-hidden">
-                <div class="px-6 py-4 border-b" style="border-color:#ECEFF1;background:#f8f9ff">
-                    <h3 class="text-sm font-bold font-heading" style="color:#1E1C66">📋 Radicados del Equipo</h3>
-                    <p class="text-xs mt-0.5" style="color:#616161">Trazabilidad completa — ordenado por más reciente</p>
+                <div class="px-6 py-4 border-b" style="border-color:#f0f0f0;background:#fafafa">
+                    <h3 class="text-sm font-bold font-heading" style="color:#222222">📋 Radicados del Equipo</h3>
+                    <p class="text-xs mt-0.5" style="color:#6a6a6a">Trazabilidad completa — ordenado por más reciente</p>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
-                        <thead><tr style="background:#f8f9ff;border-bottom:2px solid #ECEFF1">
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1E1C66;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Servidor</th>
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1E1C66;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Beneficio / Trámite</th>
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1E1C66;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Radicado</th>
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1E1C66;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Disfrute</th>
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1E1C66;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Estado</th>
+                        <thead><tr style="background:#fafafa;border-bottom:2px solid #f0f0f0">
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Servidor</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Beneficio / Trámite</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Radicado</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Disfrute</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Estado</th>
                         </tr></thead>
                         <tbody id="tbodyHistoricoEquipo"></tbody>
                     </table>
@@ -343,125 +410,140 @@
             </div>
         </div>
 
-        <!-- Panel C: Talento Humano -->
+        <!-- Panel Talento Humano -->
         <div id="seccionAnaliticaTH" style="display:none" class="space-y-6">
 
             <!-- Header TH -->
-            <div class="rounded-2xl px-6 py-6 text-white shadow-sm overflow-hidden relative" style="background:linear-gradient(135deg,#1E1C66 0%,#00A6B8 100%)">
-                <div class="absolute top-0 right-0 w-40 h-40 rounded-full opacity-10" style="background:#FDDA2F;transform:translate(20px,-20px)"></div>
-                <h2 class="text-lg font-bold mb-0.5 font-heading">📊 Centro de Gestión — Talento Humano</h2>
-                <p class="text-white/70 text-xs">Panel ejecutivo de trazabilidad institucional · Agencia APP</p>
+            <div class="rounded-2xl px-6 py-6 text-white shadow-sm overflow-hidden relative"
+                 style="background:linear-gradient(135deg,#222222 0%,#6a6a6a 100%)">
+                <div class="absolute top-0 right-0 w-40 h-40 rounded-full opacity-20"
+                     style="background:#ffd500;transform:translate(20px,-20px)"></div>
+                <div class="absolute bottom-0 left-0 w-24 h-24 rounded-full opacity-10"
+                     style="background:#1878ba;transform:translate(-10px,10px)"></div>
+                <h2 class="text-lg font-bold mb-0.5 font-heading relative z-10">📊 Centro de Gestión — Talento Humano</h2>
+                <p class="text-xs relative z-10" style="color:rgba(255,255,255,0.6)">Panel ejecutivo de trazabilidad institucional · Agencia APP</p>
+                <div class="mt-3 inline-block px-3 py-1 rounded-full text-xs font-bold font-heading relative z-10"
+                     style="background:#ffd500;color:#222222">Acceso restringido</div>
             </div>
 
             <!-- Filtros TH -->
             <div class="card-app px-6 py-4">
                 <div class="flex flex-wrap items-center gap-3">
-                    <span class="text-xs font-bold uppercase tracking-wider font-heading" style="color:#1E1C66">🔎 Filtrar:</span>
-                    <input id="filtroTHBusqueda" type="text" placeholder="Nombre o cédula..." oninput="aplicarFiltrosTH()"
-                        class="input-app py-2 px-3 text-xs min-w-[160px]" style="color:#3C3C3C">
-                    <select id="filtroTHEstado" onchange="aplicarFiltrosTH()" class="input-app py-2 px-3 text-xs" style="color:#3C3C3C">
+                    <span class="text-xs font-bold uppercase tracking-wider font-heading" style="color:#1878ba">🔎 Filtrar:</span>
+                    <input id="filtroTHBusqueda" type="text" placeholder="Nombre o cédula..."
+                           oninput="aplicarFiltrosTH()" class="input-app py-2 px-3 text-xs min-w-[160px]">
+                    <select id="filtroTHEstado" onchange="aplicarFiltrosTH()" class="input-app py-2 px-3 text-xs">
                         <option value="">Todos los estados</option>
                         <option value="aprobado">✔ Aprobado</option>
                         <option value="rechazado">✘ Rechazado</option>
                         <option value="pendiente">⏳ Pendiente</option>
                     </select>
-                    <select id="filtroTHBeneficio" onchange="aplicarFiltrosTH()" class="input-app py-2 px-3 text-xs max-w-[220px]" style="color:#3C3C3C">
+                    <select id="filtroTHBeneficio" onchange="aplicarFiltrosTH()"
+                            class="input-app py-2 px-3 text-xs max-w-[220px]">
                         <option value="">Todos los beneficios</option>
                     </select>
                     <div class="flex items-center gap-2">
-                        <span class="text-xs font-medium" style="color:#616161">Desde</span>
-                        <input id="filtroTHDesde" type="date" onchange="aplicarFiltrosTH()" class="input-app py-2 px-3 text-xs" style="color:#3C3C3C">
-                        <span class="text-xs font-medium" style="color:#616161">Hasta</span>
-                        <input id="filtroTHHasta" type="date" onchange="aplicarFiltrosTH()" class="input-app py-2 px-3 text-xs" style="color:#3C3C3C">
+                        <span class="text-xs font-medium" style="color:#6a6a6a">Desde</span>
+                        <input id="filtroTHDesde" type="date" onchange="aplicarFiltrosTH()"
+                               class="input-app py-2 px-3 text-xs">
+                        <span class="text-xs font-medium" style="color:#6a6a6a">Hasta</span>
+                        <input id="filtroTHHasta" type="date" onchange="aplicarFiltrosTH()"
+                               class="input-app py-2 px-3 text-xs">
                     </div>
                     <button onclick="document.getElementById('filtroTHBusqueda').value='';document.getElementById('filtroTHEstado').value='';document.getElementById('filtroTHBeneficio').value='';document.getElementById('filtroTHDesde').value='';document.getElementById('filtroTHHasta').value='';aplicarFiltrosTH()"
-                        class="text-xs font-semibold px-3 py-2 rounded-xl transition-all hover:bg-red-50 hover:text-red-500" style="color:#616161">✕ Limpiar</button>
+                            class="text-xs font-semibold px-3 py-2 rounded-xl transition-all hover:bg-red-50"
+                            style="color:#6a6a6a">✕ Limpiar</button>
                 </div>
             </div>
 
             <!-- KPIs TH fila 1 -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div class="card-app p-5 kpi-azul">
-                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#616161">Servidores</span>
-                    <span id="kpiThTotalServidores" class="text-4xl font-bold block font-heading" style="color:#1E1C66">0</span>
-                    <span class="text-[10px] mt-1 block" style="color:#616161">funcionarios activos</span>
-                </div>
-                <div class="card-app p-5 kpi-cian">
-                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#616161">Con Actividad</span>
-                    <span id="kpiThServsActivos" class="text-4xl font-bold block font-heading" style="color:#00A6B8">0</span>
-                    <span class="text-[10px] mt-1 block" style="color:#616161">en el período</span>
-                </div>
                 <div class="card-app p-5 kpi-gris">
-                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#616161">Total Trámites</span>
-                    <span id="kpiThTotalTramites" class="text-4xl font-bold block font-heading" style="color:#3C3C3C">0</span>
-                    <span class="text-[10px] mt-1 block" style="color:#616161">radicados</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#6a6a6a">Servidores</span>
+                    <span id="kpiThTotalServidores" class="text-4xl font-bold block font-heading" style="color:#333333">0</span>
+                    <span class="text-[10px] mt-1 block" style="color:#6a6a6a">funcionarios activos</span>
+                </div>
+                <div class="card-app p-5 kpi-azul">
+                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#6a6a6a">Con Actividad</span>
+                    <span id="kpiThServsActivos" class="text-4xl font-bold block font-heading" style="color:#1878ba">0</span>
+                    <span class="text-[10px] mt-1 block" style="color:#6a6a6a">en el período</span>
                 </div>
                 <div class="card-app p-5 kpi-amarillo">
-                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#616161">Tasa Aprobación</span>
-                    <span id="kpiThTasa" class="text-4xl font-bold block font-heading" style="color:#b7920a">—</span>
-                    <span class="text-[10px] mt-1 block" style="color:#616161">del período</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#6a6a6a">Total Trámites</span>
+                    <span id="kpiThTotalTramites" class="text-4xl font-bold block font-heading" style="color:#b7920a">0</span>
+                    <span class="text-[10px] mt-1 block" style="color:#6a6a6a">radicados</span>
+                </div>
+                <div class="card-app p-5 kpi-azul">
+                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#6a6a6a">Tasa Aprobación</span>
+                    <span id="kpiThTasa" class="text-4xl font-bold block font-heading" style="color:#1878ba">—</span>
+                    <span class="text-[10px] mt-1 block" style="color:#6a6a6a">del período</span>
                 </div>
             </div>
 
             <!-- KPIs TH fila 2 -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="card-app p-5" style="background:#f0fdf4;border-left:4px solid #43A047">
+                <div class="card-app p-5" style="background:#f1f8f1;border-left:4px solid #43A047">
                     <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#2e7d32">✔ Aprobados</span>
                     <span id="kpiThAprobados" class="text-3xl font-bold block font-heading" style="color:#43A047">0</span>
                 </div>
-                <div class="card-app p-5" style="background:#fffde7;border-left:4px solid #FDDA2F">
+                <div class="card-app p-5" style="background:#fffbea;border-left:4px solid #ffd500">
                     <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#b7920a">⏳ Pendientes</span>
                     <span id="kpiThPendientes" class="text-3xl font-bold block font-heading" style="color:#b7920a">0</span>
                 </div>
-                <div class="card-app p-5" style="background:#fef2f2;border-left:4px solid #e53935">
-                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#c62828">✘ Rechazados</span>
-                    <span id="kpiThRechazados" class="text-3xl font-bold block font-heading" style="color:#e53935">0</span>
+                <div class="card-app p-5" style="background:#fdf3f1;border-left:4px solid #cb6c59">
+                    <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#a0402e">✘ Rechazados</span>
+                    <span id="kpiThRechazados" class="text-3xl font-bold block font-heading" style="color:#cb6c59">0</span>
                 </div>
             </div>
 
             <!-- Top trámite banner -->
-            <div class="rounded-2xl px-6 py-4 flex items-center gap-4" style="background:linear-gradient(135deg,#fffde7,#fff8e1);border:1px solid #FDDA2F">
+            <div class="rounded-2xl px-6 py-4 flex items-center gap-4"
+                 style="background:#fffbea;border:1px solid #ffd500">
                 <span class="text-3xl">🏆</span>
                 <div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider block font-heading" style="color:#b7920a">Beneficio más solicitado en el período</span>
-                    <span id="kpiThTopTramite" class="text-sm font-bold block mt-0.5 font-heading" style="color:#1E1C66">—</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider block font-heading"
+                          style="color:#b7920a">Beneficio más solicitado en el período</span>
+                    <span id="kpiThTopTramite" class="text-sm font-bold block mt-0.5 font-heading"
+                          style="color:#222222">—</span>
                 </div>
             </div>
 
             <!-- Análisis + Ranking -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 <div class="card-app overflow-hidden">
-                    <div class="px-6 py-4 border-b" style="border-color:#ECEFF1;background:#f8f9ff">
-                        <h3 class="text-sm font-bold font-heading" style="color:#1E1C66">📊 Distribución por Tipo de Beneficio</h3>
-                        <p class="text-xs mt-0.5" style="color:#616161">Frecuencia de uso institucional</p>
+                    <div class="px-6 py-4 border-b" style="border-color:#f0f0f0;background:#fafafa">
+                        <h3 class="text-sm font-bold font-heading" style="color:#222222">📊 Distribución por Tipo de Beneficio</h3>
+                        <p class="text-xs mt-0.5" style="color:#6a6a6a">Frecuencia de uso institucional</p>
                     </div>
-                    <div class="p-6" id="graficaBeneficiosTH"><p class="text-xs text-center py-4" style="color:#b7b7b7">Sin datos.</p></div>
+                    <div class="p-6" id="graficaBeneficiosTH">
+                        <p class="text-xs text-center py-4" style="color:#aaaaaa">Sin datos.</p>
+                    </div>
                 </div>
                 <div class="card-app overflow-hidden">
-                    <div class="px-6 py-4 border-b" style="border-color:#ECEFF1;background:#f8f9ff">
-                        <h3 class="text-sm font-bold font-heading" style="color:#1E1C66">🎖️ Ranking de Servidores Más Activos</h3>
-                        <p class="text-xs mt-0.5" style="color:#616161">Top 8 por volumen de solicitudes</p>
+                    <div class="px-6 py-4 border-b" style="border-color:#f0f0f0;background:#fafafa">
+                        <h3 class="text-sm font-bold font-heading" style="color:#222222">🎖️ Ranking de Servidores Más Activos</h3>
+                        <p class="text-xs mt-0.5" style="color:#6a6a6a">Top 8 por volumen de solicitudes</p>
                     </div>
                     <div class="p-4 overflow-y-auto" style="max-height:360px" id="rankingServidoresTH">
-                        <p class="text-xs text-center py-4" style="color:#b7b7b7">Sin datos.</p>
+                        <p class="text-xs text-center py-4" style="color:#aaaaaa">Sin datos.</p>
                     </div>
                 </div>
             </div>
 
             <!-- Tabla TH -->
             <div class="card-app overflow-hidden">
-                <div class="px-6 py-4 border-b" style="border-color:#ECEFF1;background:#f8f9ff">
-                    <h3 class="text-sm font-bold font-heading" style="color:#1E1C66">📋 Consolidado General Institucional</h3>
-                    <p class="text-xs mt-0.5" style="color:#616161">Trazabilidad completa para entes de control</p>
+                <div class="px-6 py-4 border-b" style="border-color:#f0f0f0;background:#fafafa">
+                    <h3 class="text-sm font-bold font-heading" style="color:#222222">📋 Consolidado General Institucional</h3>
+                    <p class="text-xs mt-0.5" style="color:#6a6a6a">Trazabilidad completa para entes de control</p>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
-                        <thead><tr style="background:#f8f9ff;border-bottom:2px solid #ECEFF1">
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1E1C66;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Servidor</th>
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1E1C66;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Beneficio / Trámite</th>
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1E1C66;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Radicado</th>
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1E1C66;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Disfrute</th>
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1E1C66;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Estado</th>
+                        <thead><tr style="background:#fafafa;border-bottom:2px solid #f0f0f0">
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Servidor</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Beneficio / Trámite</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Radicado</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Disfrute</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Estado</th>
                         </tr></thead>
                         <tbody id="tbodyHistoricoTH"></tbody>
                     </table>
@@ -471,54 +553,95 @@
     </div>
 </main>
 
-<!-- Footer institucional -->
-<footer class="mt-12 py-6 text-center text-xs" style="color:#616161;border-top:1px solid #d0d5e8">
-    <div class="header-strip mb-4"></div>
-    <p class="font-heading font-semibold" style="color:#1E1C66">Agencia para la Gestión del Paisaje, el Patrimonio y las Alianzas Público Privadas — AGENCIA APP</p>
-    <p class="mt-1">Portal institucional de Tiquetera Emocional y Situaciones Administrativas</p>
+<!-- Footer -->
+<footer class="mt-12" style="border-top:1px solid #e0e0e0">
+    <div class="strip-amarillo"></div>
+    <div class="py-6 text-center">
+        <p class="font-heading font-bold text-xs" style="color:#222222">
+            Agencia para la Gestión del Paisaje, el Patrimonio y las Alianzas Público Privadas — AGENCIA APP
+        </p>
+        <p class="text-xs mt-1" style="color:#6a6a6a">
+            Portal institucional de Tiquetera Emocional y Situaciones Administrativas · Alcaldía de Medellín
+        </p>
+    </div>
 </footer>
 
 <!-- MODAL -->
-<div id="modalBeneficio" style="display:none" class="fixed inset-0 backdrop-blur-sm items-center justify-center p-4 z-50" style="background:rgba(30,28,102,0.5)">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col" style="border-top:5px solid #1E1C66">
-        <div class="px-6 py-4 flex justify-between items-center" style="background:#f8f9ff;border-bottom:1px solid #ECEFF1">
-            <h3 id="lblTituloPopup" class="font-bold text-base font-heading" style="color:#1E1C66">Título del Beneficio</h3>
-            <button onclick="cerrarPopup()" class="hover:bg-red-50 hover:text-red-500 p-2 rounded-xl transition-all text-xl font-bold" style="color:#616161">&times;</button>
+<div id="modalBeneficio" style="display:none;background:rgba(0,0,0,0.6)"
+     class="fixed inset-0 backdrop-blur-sm items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col"
+         style="border-top:5px solid #ffd500">
+        <div class="px-6 py-4 flex justify-between items-center"
+             style="background:#fafafa;border-bottom:1px solid #f0f0f0">
+            <h3 id="lblTituloPopup" class="font-bold text-base font-heading" style="color:#222222">
+                Título del Beneficio
+            </h3>
+            <button onclick="cerrarPopup()"
+                    class="p-2 rounded-xl transition-all text-xl font-bold"
+                    style="color:#6a6a6a">×</button>
         </div>
         <form id="formSolicitud" class="p-6 space-y-5 flex-1">
-            <div class="rounded-xl p-4 text-sm" style="background:#ede7f6;border:1px solid #d1c4e9;color:#1E1C66">
+            <div class="rounded-xl p-4 text-sm"
+                 style="background:#f5f9ff;border:1px solid #c8dff4;color:#1878ba">
                 <p id="lblAnticipacion">⏰ Mínimo X días de anticipación.</p>
-                <p id="lblAlertaSoporte" style="display:none" class="font-semibold mt-1" style="color:#b7920a">📎 Este beneficio requiere adjuntar soporte.</p>
+                <p id="lblAlertaSoporte" style="display:none"
+                   class="font-semibold mt-1" style="color:#b7920a">
+                   📎 Este beneficio requiere adjuntar soporte.
+                </p>
             </div>
             <div>
-                <label id="lblFechaDisfrute" class="block text-xs font-bold uppercase tracking-wider mb-2 font-heading" style="color:#1E1C66">Fecha de la Solicitud</label>
+                <label id="lblFechaDisfrute"
+                       class="block text-xs font-bold uppercase tracking-wider mb-2 font-heading"
+                       style="color:#222222">Fecha de la Solicitud</label>
                 <input type="date" id="dtFechaInicio" class="input-app w-full p-3 text-sm" required>
-                <p id="lblAlertaFecha" style="display:none" class="text-red-600 text-xs mt-1">⚠️ La fecha no cumple con la anticipación mínima requerida.</p>
-                <p id="lblAlertaSemana" style="display:none" class="text-xs mt-2 font-semibold p-2 rounded-xl" style="background:#fffde7;border:1px solid #FDDA2F;color:#b7920a">⚠️ Ya tienes un beneficio aprobado para esa semana. Solo puedes disfrutar 1 beneficio por semana. Elige una fecha en otra semana.</p>
+                <p id="lblAlertaFecha" style="display:none"
+                   class="text-xs mt-1 font-semibold" style="color:#cb6c59">
+                   ⚠️ La fecha no cumple con la anticipación mínima requerida.
+                </p>
+                <p id="lblAlertaSemana" style="display:none"
+                   class="text-xs mt-2 font-semibold p-2 rounded-xl"
+                   style="background:#fffbea;border:1px solid #ffd500;color:#b7920a">
+                </p>
             </div>
             <div id="wrapperHoraCita" style="display:none">
-                <label class="block text-xs font-bold uppercase tracking-wider mb-2 font-heading" style="color:#1E1C66">Hora de la Cita Médica</label>
+                <label class="block text-xs font-bold uppercase tracking-wider mb-2 font-heading"
+                       style="color:#222222">Hora de la Cita Médica</label>
                 <input type="time" id="inputHoraCita" class="input-app w-full p-3 text-sm">
-                <p class="text-xs mt-1" style="color:#616161">⏰ Indica la hora exacta de tu cita para el registro institucional.</p>
+                <p class="text-xs mt-1" style="color:#6a6a6a">
+                    ⏰ Indica la hora exacta de tu cita para el registro institucional.
+                </p>
             </div>
             <div>
-                <label class="block text-xs font-bold uppercase tracking-wider mb-2 font-heading" style="color:#1E1C66">Justificación</label>
-                <textarea id="txtJustificacion" rows="3" class="input-app w-full p-3 text-sm" placeholder="Escribe los detalles de tu solicitud..." required></textarea>
+                <label class="block text-xs font-bold uppercase tracking-wider mb-2 font-heading"
+                       style="color:#222222">Justificación</label>
+                <textarea id="txtJustificacion" rows="3"
+                          class="input-app w-full p-3 text-sm"
+                          placeholder="Escribe los detalles de tu solicitud..." required></textarea>
             </div>
             <div id="wrapperSoportes" style="display:none">
-                <label class="block text-xs font-bold uppercase tracking-wider mb-2 font-heading" style="color:#1E1C66">Documento de Soporte</label>
-                <div class="border-2 border-dashed rounded-xl p-4 text-center cursor-pointer relative transition-colors" style="border-color:#d0d5e8;background:#f8f9ff">
-                    <input type="file" id="attSoportes" accept=".pdf, .png, .jpg, .jpeg" class="absolute inset-0 opacity-0 cursor-pointer">
-                    <p class="text-xs font-medium" id="lblFileStatus" style="color:#616161">📄 Selecciona o arrastra tu archivo (PDF, PNG, JPG)</p>
+                <label class="block text-xs font-bold uppercase tracking-wider mb-2 font-heading"
+                       style="color:#222222">Documento de Soporte</label>
+                <div class="border-2 border-dashed rounded-xl p-4 text-center cursor-pointer relative transition-colors"
+                     style="border-color:#e0e0e0;background:#fafafa">
+                    <input type="file" id="attSoportes" accept=".pdf, .png, .jpg, .jpeg"
+                           class="absolute inset-0 opacity-0 cursor-pointer">
+                    <p class="text-xs font-medium" id="lblFileStatus" style="color:#6a6a6a">
+                        📄 Selecciona o arrastra tu archivo (PDF, PNG, JPG)
+                    </p>
                 </div>
             </div>
         </form>
-        <div class="px-6 py-4 flex justify-end space-x-3" style="background:#f8f9ff;border-top:1px solid #ECEFF1">
+        <div class="px-6 py-4 flex justify-end space-x-3"
+             style="background:#fafafa;border-top:1px solid #f0f0f0">
             <button type="button" onclick="cerrarPopup()"
-                    class="px-4 py-2 border rounded-xl text-sm font-semibold transition-colors font-heading"
-                    style="border-color:#d0d5e8;color:#616161;background:white">Cancelar</button>
+                    class="px-4 py-2 border rounded-xl text-sm font-semibold font-heading transition-colors"
+                    style="border-color:#e0e0e0;color:#6a6a6a;background:white">
+                Cancelar
+            </button>
             <button type="button" id="btnEnviarSolicitud" disabled
-                    class="btn-app px-5 py-2 text-sm">Enviar Solicitud</button>
+                    class="btn-app px-5 py-2 text-sm">
+                Enviar Solicitud
+            </button>
         </div>
     </div>
 </div>
