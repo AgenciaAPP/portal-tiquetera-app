@@ -270,10 +270,13 @@
             <div style="width:48px;height:4px;background:#ffd500;border-radius:2px;margin:0 auto 16px"></div>
             <p class="text-sm mb-6" style="color:#6a6a6a">Ingresa tu número de documento para verificar tu estado y cargar tus beneficios disponibles.</p>
             <div class="space-y-4">
+                <style>
+                    #txtCedulaIngreso::placeholder { font-family:'Nunito',sans-serif; font-weight:400; font-size:14px; color:#aaaaaa; letter-spacing:0; }
+                </style>
                 <input type="text" id="txtCedulaIngreso"
-                       class="input-app w-full text-center p-3 text-lg font-bold tracking-wider"
-                       placeholder="Número de Cédula"
-                       style="font-family:'Montserrat',sans-serif;color:#222222">
+                       class="input-app w-full text-center p-3"
+                       placeholder="Ingresa tu número de cédula"
+                       style="font-family:'Montserrat',sans-serif;font-size:18px;font-weight:700;color:#222222;letter-spacing:0.05em">
                 <button type="button" id="btnValidarCedula"
                         class="btn-app w-full py-3 px-6 flex items-center justify-center gap-2 text-sm">
                     <svg id="spinnerLoading" style="display:none" class="spinner h-5 w-5"
@@ -752,6 +755,37 @@
     </div>
 </div>
 
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const frases = [
+        "Ingresa tu número de cédula",
+        "Accede a tus beneficios",
+        "Rápido, fácil y seguro",
+        "Tu información es confidencial",
+        "Solicita tus permisos aquí",
+    ];
+    let fi = 0, ci = 0, borrando = false;
+    const el = document.getElementById('txtCedulaIngreso');
+    if(!el) return;
+
+    function tick() {
+        if(document.activeElement === el) { setTimeout(tick, 300); return; }
+        const frase = frases[fi];
+        if(!borrando) {
+            ci++;
+            el.placeholder = frase.slice(0, ci);
+            if(ci === frase.length) { borrando = true; setTimeout(tick, 1800); return; }
+            setTimeout(tick, 60);
+        } else {
+            ci--;
+            el.placeholder = frase.slice(0, ci);
+            if(ci === 0) { borrando = false; fi = (fi + 1) % frases.length; setTimeout(tick, 400); return; }
+            setTimeout(tick, 35);
+        }
+    }
+    tick();
+});
+</script>
 <script type="module" src="app.js"></script>
 </body>
 </html>
