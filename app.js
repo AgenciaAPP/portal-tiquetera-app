@@ -101,6 +101,7 @@ async function procesarAutenticacion() {
             mostrarEl(lblErrorLogin);
         }
     } catch(e) {
+        console.error('Error en procesarAutenticacion:', e);
         lblErrorLogin.innerText = "⚠️ Error de conexión con el servidor institucional.";
         mostrarEl(lblErrorLogin);
     } finally {
