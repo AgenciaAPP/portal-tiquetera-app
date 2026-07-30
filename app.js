@@ -16,8 +16,8 @@ const URL_FLOW_CONSULTA = "https://54b407e9c34be36d9ed93dfaf5a04b.e5.environment
 const URL_FLOW_REGISTRO = "https://54b407e9c34be36d9ed93dfaf5a04b.e5.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/0545fde32b6648ef94ea9f6e01c70d6b/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=yQ3l3qxdl2oAS6KpgPBDYTOR88hwzGyxTwW29sVNJ6k";
 const URL_FLOW_VALIDAR_OTP = "https://54b407e9c34be36d9ed93dfaf5a04b.e5.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/01/workflows/e522672a2d8e469ab056b48bed51a8ab/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=xRXqAkksMgOK83oAzTo6bWlT1HjJRH5fK7yfNZHpszg";
 
-// Cédula temporal mientras se valida OTP
-let cedulaPendienteOTP = "";
+// Respuesta completa guardada del primer flow
+let respuestaCompletaUsuario = null;
 
 // Títulos excluidos del conteo anual de 15 y del límite semanal
 const EXCLUIDOS_LIMITES = ["Día para Trabajo desde casa", "Desconexión temprana"];
@@ -84,6 +84,7 @@ async function procesarAutenticacion() {
         const res = await r.json();
         if(res.valido === "SI") {
             cedulaPendienteOTP = cedula;
+            respuestaCompletaUsuario = res;
             // Mostrar pantalla OTP
             const correo = res.correo || '';
             if(correo) {
@@ -180,10 +181,11 @@ async function procesarValidacionOTP() {
         const res = await r.json();
 
         if(res.valido === "SI") {
-            // OTP correcto — ahora cargar los datos reales del usuario
+            // OTP correcto — usar datos ya guardados, sin segunda llamada al flow
             limpiarCamposOTP();
             ocultarEl(seccionOTP);
-            await cargarDatosUsuario(cedulaPendienteOTP);
+            mostrarPantallaCarga();
+            aplicarDatosUsuario(cedulaPendienteOTP, respuestaCompletaUsuario);
         } else {
             lblErrorOTP.innerText = "⚠️ Código incorrecto o expirado. Verifica tu correo e intenta de nuevo.";
             mostrarEl(lblErrorOTP);
@@ -201,34 +203,34 @@ async function procesarValidacionOTP() {
     }
 }
 
-async function cargarDatosUsuario(cedula) {
-    try {
-        const r = await fetch(URL_FLOW_CONSULTA, {
-            method: 'POST', mode: 'cors',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({cedula})
-        });
-        if(!r.ok) throw new Error();
-        const res = await r.json();
+function mostrarPantallaCarga() {
+    const el = document.getElementById('seccionCargando');
+    if(el) mostrarEl(el);
+}
 
-        permisosUsuario         = res.permisos         || [];
-        rolUsuarioActivo        = res.rol              || "EMPLEADO";
-        listaSubordinados       = res.subordinados     || [];
-        historicoPermisosEquipo = res.historicoEquipo  || [];
-        fechasDisfrute          = res.fechasDisfrute   || [];
+function ocultarPantallaCarga() {
+    const el = document.getElementById('seccionCargando');
+    if(el) ocultarEl(el);
+}
 
-        const nombre = res.nombre || "Servidor Público";
-        lblNombreUsuario.innerText = nombre;
-        lblCedulaUsuario.innerText = cedula;
-        avatarUsuario.innerText = nombre.charAt(0).toUpperCase();
+function aplicarDatosUsuario(cedula, res) {
+    permisosUsuario         = res.permisos         || [];
+    rolUsuarioActivo        = res.rol              || "EMPLEADO";
+    listaSubordinados       = res.subordinados     || [];
+    historicoPermisosEquipo = res.historicoEquipo  || [];
+    fechasDisfrute          = res.fechasDisfrute   || [];
+
+    const nombre = res.nombre || "Servidor Público";
+    lblNombreUsuario.innerText = nombre;
+    lblCedulaUsuario.innerText = cedula;
+    avatarUsuario.innerText = nombre.charAt(0).toUpperCase();
+
+    setTimeout(() => {
+        ocultarPantallaCarga();
         mostrarFlex(headerUsuario);
         mostrarEl(seccionContenidoPortal);
         evaluarRolYActivarVista();
-    } catch(e) {
-        mostrarEl(seccionLogin);
-        lblErrorLogin.innerText = "⚠️ Error al cargar los datos. Por favor intenta de nuevo.";
-        mostrarEl(lblErrorLogin);
-    }
+    }, 1200);
 }
 
 function evaluarRolYActivarVista() {
@@ -910,8 +912,8 @@ function cerrarSesion() {
     tabHistorial.className=TAB_INACTIVO;
     ocultarEl(headerUsuario); ocultarEl(seccionContenidoPortal);
     ocultarEl(seccionHistorial); ocultarEl(seccionDashboardEquipo); ocultarEl(seccionAnaliticaTH);
-    ocultarEl(seccionOTP);
-    cedulaPendienteOTP = "";
+    ocultarEl(seccionOTP); ocultarPantallaCarga();
+    cedulaPendienteOTP = ""; respuestaCompletaUsuario = null;
     mostrarEl(gridBeneficios); mostrarEl(seccionLogin);
 }
 
