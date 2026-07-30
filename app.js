@@ -293,13 +293,13 @@ function getTipoBeneficio(titulo) {
 function badgeTipo(titulo) {
     const tipo = getTipoBeneficio(titulo);
     if(tipo === "Tiquetera")
-        return `<span style="display:inline-flex;align-items:center;padding:2px 10px;border-radius:30px;font-size:10px;font-weight:700;background:#fffbea;color:#b7920a;border:1px solid #ffd500">🎟️ Tiquetera</span>`;
+        return `<span style="display:inline-flex;align-items:center;padding:2px 10px;border-radius:30px;font-size:10px;font-weight:700;background:#fffbea;color:#b7920a;border:1px solid #fdda2f">🎟️ Tiquetera</span>`;
     if(tipo === "Administrativos")
-        return `<span style="display:inline-flex;align-items:center;padding:2px 10px;border-radius:30px;font-size:10px;font-weight:700;background:#e8f4fd;color:#1878ba;border:1px solid #b8daef">💼 Administrativa</span>`;
+        return `<span style="display:inline-flex;align-items:center;padding:2px 10px;border-radius:30px;font-size:10px;font-weight:700;background:#e8f4fd;color:#00a6b8;border:1px solid #b8daef">💼 Administrativa</span>`;
     return `<span style="display:inline-flex;align-items:center;padding:2px 10px;border-radius:30px;font-size:10px;font-weight:700;background:#f0f0f0;color:#6a6a6a;border:1px solid #e0e0e0">— Sin clasificar</span>`;
 }
 
-function avatarDiv(nombre, size=28, bg='#1878ba') {
+function avatarDiv(nombre, size=28, bg='#00a6b8') {
     return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${bg};color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:${Math.round(size*0.4)}px;flex-shrink:0">${nombre.charAt(0).toUpperCase()}</div>`;
 }
 
@@ -312,7 +312,7 @@ function serverRow(reg) {
                 <div><div style="font-size:12px;font-weight:700;color:#222222;font-family:'Montserrat',sans-serif">${nombre}</div><div style="font-size:10px;color:#6a6a6a">${reg.Title}</div></div>
             </div>
         </td>
-        <td style="padding:12px 16px;font-size:12px;font-weight:600;color:#333333;max-width:180px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${reg.PermisoSolicitado||''}">${reg.PermisoSolicitado||'—'}</span></td>
+        <td style="padding:12px 16px;font-size:12px;font-weight:600;color:#444444;max-width:180px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${reg.PermisoSolicitado||''}">${reg.PermisoSolicitado||'—'}</span></td>
         <td style="padding:12px 16px">${badgeTipo(reg.PermisoSolicitado)}</td>
         <td style="padding:12px 16px;font-size:11px;color:#6a6a6a;white-space:nowrap">${formatFecha(reg.Created)}</td>
         <td style="padding:12px 16px;font-size:11px;color:#6a6a6a;white-space:nowrap">${formatFecha(reg.FechaSolicitud||reg.FechaInicio)}</td>
@@ -330,7 +330,7 @@ function serverRowTH(reg) {
                 <div><div style="font-size:12px;font-weight:700;color:#222222;font-family:'Montserrat',sans-serif">${nombre}</div><div style="font-size:10px;color:#6a6a6a">${reg.Title}</div></div>
             </div>
         </td>
-        <td style="padding:12px 16px;font-size:12px;font-weight:600;color:#333333;max-width:200px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${reg.PermisoSolicitado||''}">${reg.PermisoSolicitado||'—'}</span></td>
+        <td style="padding:12px 16px;font-size:12px;font-weight:600;color:#444444;max-width:200px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${reg.PermisoSolicitado||''}">${reg.PermisoSolicitado||'—'}</span></td>
         <td style="padding:12px 16px">${badgeTipo(reg.PermisoSolicitado)}</td>
         <td style="padding:12px 16px;font-size:11px;color:#6a6a6a;white-space:nowrap">${formatFecha(reg.FechaSolicitud||reg.FechaInicio)}</td>
         <td style="padding:12px 16px">${badge(getEstado(reg))}</td>
@@ -410,7 +410,7 @@ function renderPildoras() {
         return `<button onclick="filtrarCategoria('${cat}')"
             style="padding:8px 18px;border-radius:30px;font-size:12px;font-weight:700;font-family:'Montserrat',sans-serif;cursor:pointer;transition:all 0.2s;white-space:nowrap;
             ${activa
-                ? 'background:#ffd500;color:#222222;border:2px solid #ffd500;box-shadow:0 2px 8px rgba(255,213,0,0.35)'
+                ? 'background:#fdda2f;color:#222222;border:2px solid #fdda2f;box-shadow:0 2px 8px rgba(255,213,0,0.35)'
                 : 'background:white;color:#222222;border:2px solid #e0e0e0'}"
         >${label}</button>`;
     }).join('');
@@ -464,8 +464,8 @@ function crearCard(b, totalAnual) {
             const rb = regla.ReglaBloqueo;
             if(rb === "Anual" && v >= 1)          { disponible = false; btn = "Ya utilizado este año"; }
             else if(rb === "Anual_Limite_2" && v >= 2) { disponible = false; btn = "Límite anual alcanzado (Máx 2)"; }
-            if(rb === "Mensual" && v >= 1)         badge2 = `<span style="font-size:11px;color:#1878ba;font-weight:600;display:block;margin-top:4px">📆 Usado ${v} vez/veces — Elige otra fecha al solicitar</span>`;
-            else if(rb === "Semestral" && v >= 1)  badge2 = `<span style="font-size:11px;color:#1878ba;font-weight:600;display:block;margin-top:4px">📆 ${v===1?"1er semestre usado":"2 semestres usados"} — Elige fecha del semestre disponible</span>`;
+            if(rb === "Mensual" && v >= 1)         badge2 = `<span style="font-size:11px;color:#00a6b8;font-weight:600;display:block;margin-top:4px">📆 Usado ${v} vez/veces — Elige otra fecha al solicitar</span>`;
+            else if(rb === "Semestral" && v >= 1)  badge2 = `<span style="font-size:11px;color:#00a6b8;font-weight:600;display:block;margin-top:4px">📆 ${v===1?"1er semestre usado":"2 semestres usados"} — Elige fecha del semestre disponible</span>`;
             else if(rb === "Anual_Limite_2" && v === 1) badge2 = `<span style="font-size:11px;color:#b7920a;font-weight:600;display:block;margin-top:4px">⚠️ Te queda 1 solicitud disponible este año</span>`;
             else if(v > 0) badge2 = `<span style="font-size:11px;color:#616161;font-weight:500;display:block;margin-top:4px">Usado este año: ${v} vez/veces</span>`;
         } else if(b.tipo === "Tiquetera") {
@@ -489,7 +489,7 @@ function crearCard(b, totalAnual) {
         <h4 style="font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;color:#222222;margin-top:12px;margin-bottom:4px;line-height:1.4">${b.titulo}</h4>
         <p style="font-size:11px;color:#616161">Anticipación: ${b.diasAntelacion} día${b.diasAntelacion===1?'':'s'} hábil${b.diasAntelacion===1?'':'es'}</p>${badge2}
         </div>
-        <button style="margin-top:20px;width:100%;text-align:center;padding:10px 16px;border-radius:30px;font-size:13px;font-weight:700;font-family:'Montserrat',sans-serif;transition:all 0.2s;${disponible?'background:#ffd500;color:#222222;cursor:pointer':'background:#ECEFF1;color:#b7b7b7;cursor:not-allowed'}" ${!disponible?'disabled':''}>${btn}</button>`;
+        <button style="margin-top:20px;width:100%;text-align:center;padding:10px 16px;border-radius:30px;font-size:13px;font-weight:700;font-family:'Montserrat',sans-serif;transition:all 0.2s;${disponible?'background:#fdda2f;color:#222222;cursor:pointer':'background:#ECEFF1;color:#b7b7b7;cursor:not-allowed'}" ${!disponible?'disabled':''}>${btn}</button>`;
     if(disponible) card.querySelector('button').addEventListener('click', () => abrirPopup(b));
     return card;
 }
@@ -543,7 +543,7 @@ function renderHistorial() {
     tbody.innerHTML = ordenados.map(reg => {
         const cuentaEnCuota = !EXCLUIDOS_LIMITES.includes(reg.PermisoSolicitado) && !TITULOS_ADMINISTRATIVOS.has(reg.PermisoSolicitado);
         const cuentaBadge = cuentaEnCuota
-            ? `<span style="display:inline-flex;align-items:center;padding:2px 10px;border-radius:30px;font-size:10px;font-weight:700;background:#e8f4fd;color:#1878ba;border:1px solid #b8daef">✔ Sí cuenta</span>`
+            ? `<span style="display:inline-flex;align-items:center;padding:2px 10px;border-radius:30px;font-size:10px;font-weight:700;background:#e8f4fd;color:#00a6b8;border:1px solid #b8daef">✔ Sí cuenta</span>`
             : `<span style="display:inline-flex;align-items:center;padding:2px 10px;border-radius:30px;font-size:10px;font-weight:700;background:#e0f7fa;color:#00838F;border:1px solid #b2ebf2">— No cuenta</span>`;
 
         return `<tr style="border-bottom:1px solid #f0f0f0;transition:background 0.15s" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''">
@@ -697,14 +697,14 @@ function renderRankingServidores(hist) {
             const rech  = hist.filter(r=>r.Title===ced && getEstado(r).toLowerCase()==='rechazado').length;
             const pend  = val - aprob - rech;
             return `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f0f0f0">
-                ${avatarDiv(nom, 34, '#1878ba')}
+                ${avatarDiv(nom, 34, '#00a6b8')}
                 <div style="flex:1;min-width:0">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
                         <span style="font-size:12px;font-weight:700;color:#222222;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'Montserrat',sans-serif">${nom}</span>
-                        <span style="font-size:11px;font-weight:700;color:#1878ba;flex-shrink:0;margin-left:8px;font-family:'Montserrat',sans-serif">${val} solicitud${val===1?'':'es'}</span>
+                        <span style="font-size:11px;font-weight:700;color:#00a6b8;flex-shrink:0;margin-left:8px;font-family:'Montserrat',sans-serif">${val} solicitud${val===1?'':'es'}</span>
                     </div>
                     <div style="background:#f0f0f0;border-radius:9999px;height:5px;overflow:hidden;margin-bottom:5px">
-                        <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#1878ba,#ffd500);border-radius:9999px"></div>
+                        <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#00a6b8,#fdda2f);border-radius:9999px"></div>
                     </div>
                     <div style="display:flex;gap:10px">
                         <span style="font-size:10px;color:#2e7d32;font-weight:600">✔ ${aprob} aprobadas</span>
