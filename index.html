@@ -296,6 +296,56 @@
     </div>
 
     <!-- PORTAL -->
+    <!-- OTP -->
+    <div id="seccionOTP" style="display:none" class="max-w-md mx-auto my-12">
+        <div class="card-app p-8 text-center" style="border-top:5px solid #fdda2f">
+            <div class="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-5"
+                 style="background:#fdda2f">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24"
+                     stroke="#222222" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+            </div>
+            <h2 class="font-heading text-xl font-bold mb-2" style="color:#222222">Verifica tu identidad</h2>
+            <div style="width:48px;height:4px;background:#fdda2f;border-radius:2px;margin:0 auto 16px"></div>
+            <p class="text-sm mb-2" style="color:#444444">Ingresa el código de 4 dígitos que enviamos a tu correo institucional.</p>
+            <p id="lblCorreoOTP" class="text-xs font-bold mb-6" style="color:#00a6b8"></p>
+            <div class="flex justify-center gap-3 mb-6">
+                <input id="otp1" type="text" maxlength="1" inputmode="numeric"
+                       class="input-app text-center text-2xl font-bold"
+                       style="width:56px;height:64px;font-family:'Montserrat',sans-serif;color:#222222">
+                <input id="otp2" type="text" maxlength="1" inputmode="numeric"
+                       class="input-app text-center text-2xl font-bold"
+                       style="width:56px;height:64px;font-family:'Montserrat',sans-serif;color:#222222">
+                <input id="otp3" type="text" maxlength="1" inputmode="numeric"
+                       class="input-app text-center text-2xl font-bold"
+                       style="width:56px;height:64px;font-family:'Montserrat',sans-serif;color:#222222">
+                <input id="otp4" type="text" maxlength="1" inputmode="numeric"
+                       class="input-app text-center text-2xl font-bold"
+                       style="width:56px;height:64px;font-family:'Montserrat',sans-serif;color:#222222">
+            </div>
+            <button type="button" id="btnValidarOTP"
+                    class="btn-app w-full py-3 px-6 flex items-center justify-center gap-2 text-sm mb-4" disabled>
+                <svg id="spinnerOTP" style="display:none" class="spinner h-5 w-5"
+                     xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="#222222" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="#222222"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span id="txtBtnOTP">Verificar código</span>
+            </button>
+            <p id="lblErrorOTP" style="display:none;background:#fdf3f1;border:1px solid #cb6c59;color:#cb6c59"
+               class="text-xs font-semibold py-2.5 px-4 rounded-xl mb-3">
+            </p>
+            <button type="button" id="btnVolverLogin"
+                    class="text-xs font-semibold transition-all"
+                    style="color:#6a6a6a">
+                ← Volver e ingresar otra cédula
+            </button>
+        </div>
+    </div>
+
     <div id="seccionContenidoPortal" style="display:none">
 
         <!-- Tabs -->
