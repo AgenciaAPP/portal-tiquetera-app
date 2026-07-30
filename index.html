@@ -28,9 +28,6 @@
                 linear-gradient(90deg, rgba(24,120,186,0.04) 1px, transparent 1px);
             background-size: 32px 32px;
             color: #333333;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
         }
 
         /* Strip amarillo */
@@ -256,11 +253,11 @@
 </header>
 <div style="height:3px;background:linear-gradient(90deg,#1878ba 0%,#ffd500 60%,#cb6c59 100%)"></div>
 
-<main style="width:100%;padding:2rem 0">
+<main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
 
     <!-- LOGIN -->
-    <div id="seccionLogin" style="display:flex;align-items:center;justify-content:center;padding:2rem 1rem">
-        <div class="card-app login-bg p-8 text-center" style="border-top:5px solid #ffd500;width:100%;max-width:440px">
+    <div id="seccionLogin" class="max-w-md mx-auto my-12">
+        <div class="card-app login-bg p-8 text-center" style="border-top:5px solid #ffd500">
             <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
                  style="background:#ffd500;box-shadow:0 4px 16px rgba(255,213,0,0.4)">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
@@ -299,8 +296,7 @@
     </div>
 
     <!-- PORTAL -->
-    <div id="seccionContenidoPortal" style="display:none;width:100%">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    <div id="seccionContenidoPortal" style="display:none">
 
         <!-- Tabs -->
         <div class="mb-8" style="border-bottom:2px solid #e0e0e0;background:white;border-radius:16px 16px 0 0;padding:0 24px;box-shadow:0 2px 8px rgba(0,0,0,0.05)">
@@ -659,12 +655,11 @@
                 </div>
             </div>
         </div>
-    </div><!-- fin max-w-7xl -->
-    </div><!-- fin seccionContenidoPortal -->
+    </div>
 </main>
 
 <!-- Footer -->
-<footer id="footerPortal" style="display:none;border-top:1px solid #e0e0e0;background:white">
+<footer class="mt-16" style="border-top:1px solid #e0e0e0;background:white">
     <div style="height:4px;background:linear-gradient(90deg,#1878ba 0%,#ffd500 60%,#cb6c59 100%)"></div>
     <div class="max-w-7xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div>
