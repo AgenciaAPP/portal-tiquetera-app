@@ -80,7 +80,8 @@ async function procesarAutenticacion() {
     ocultarEl(lblErrorLogin);
     try {
         const r = await fetch(URL_FLOW_CONSULTA, { method:'POST', mode:'cors', headers:{'Content-Type':'application/json'}, body: JSON.stringify({cedula}) });
-        const res = await r.json();
+        const texto = await r.text();
+        const res = JSON.parse(texto);
         if(res.valido === "SI") {
             cedulaPendienteOTP = cedula;
             respuestaCompletaUsuario = res;
