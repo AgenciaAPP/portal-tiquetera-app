@@ -85,6 +85,7 @@ async function procesarAutenticacion() {
             mostrarFlex(headerUsuario);
             ocultarEl(seccionLogin);
             mostrarEl(seccionContenidoPortal);
+            mostrarEl(document.getElementById('footerPortal'));
             evaluarRolYActivarVista();
         } else {
             lblErrorLogin.innerText = "⚠️ Funcionario no habilitado o no encontrado en la base de datos.";
@@ -779,6 +780,7 @@ function cerrarSesion() {
     tabHistorial.className=TAB_INACTIVO;
     ocultarEl(headerUsuario); ocultarEl(seccionContenidoPortal);
     ocultarEl(seccionHistorial); ocultarEl(seccionDashboardEquipo); ocultarEl(seccionAnaliticaTH);
+    ocultarEl(document.getElementById('footerPortal'));
     mostrarEl(gridBeneficios); mostrarEl(seccionLogin);
 }
 
