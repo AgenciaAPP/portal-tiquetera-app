@@ -14,6 +14,10 @@ let fechasDisfrute = []; // fechas de disfrute aprobadas del servidor actual
 
 const URL_FLOW_CONSULTA = "https://54b407e9c34be36d9ed93dfaf5a04b.e5.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/416f1b2038a24f729b516db2c869774e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KjDEhk6b_cTv_TF3yc0B43OvtdKAJ4qfKPs27gOjBG8";
 const URL_FLOW_REGISTRO = "https://54b407e9c34be36d9ed93dfaf5a04b.e5.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/0545fde32b6648ef94ea9f6e01c70d6b/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=yQ3l3qxdl2oAS6KpgPBDYTOR88hwzGyxTwW29sVNJ6k";
+const URL_FLOW_VALIDAR_OTP = "https://54b407e9c34be36d9ed93dfaf5a04b.e5.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/01/workflows/e522672a2d8e469ab056b48bed51a8ab/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=xRXqAkksMgOK83oAzTo6bWlT1HjJRH5fK7yfNZHpszg";
+
+// Cédula temporal mientras se valida OTP
+let cedulaPendienteOTP = "";
 
 // Títulos excluidos del conteo anual de 15 y del límite semanal
 const EXCLUIDOS_LIMITES = ["Día para Trabajo desde casa", "Desconexión temprana"];
@@ -38,7 +42,13 @@ const avatarUsuario          = document.getElementById('avatarUsuario');
 const lblNombreUsuario       = document.getElementById('lblNombreUsuario');
 const lblCedulaUsuario       = document.getElementById('lblCedulaUsuario');
 const btnCerrarSesion        = document.getElementById('btnCerrarSesion');
-const spinnerLoading         = document.getElementById('spinnerLoading');
+const seccionOTP            = document.getElementById('seccionOTP');
+const btnValidarOTP         = document.getElementById('btnValidarOTP');
+const btnVolverLogin        = document.getElementById('btnVolverLogin');
+const lblErrorOTP           = document.getElementById('lblErrorOTP');
+const lblCorreoOTP          = document.getElementById('lblCorreoOTP');
+const spinnerOTP            = document.getElementById('spinnerOTP');
+const txtBtnOTP             = document.getElementById('txtBtnOTP');
 const txtBtnValidar          = document.getElementById('txtBtnValidar');
 const tbodyHistoricoEquipo   = document.getElementById('tbodyHistoricoEquipo');
 const tbodyHistoricoTH       = document.getElementById('tbodyHistoricoTH');
@@ -54,6 +64,7 @@ function mostrarFlex(el){ if(el) el.style.display = 'flex'; }
 document.addEventListener('DOMContentLoaded', () => {
     setupTabs();
     setupFormValidation();
+    setupOTP();
     btnValidarCedula.addEventListener('click', procesarAutenticacion);
     txtCedulaIngreso.addEventListener('keypress', e => { if(e.key==='Enter') procesarAutenticacion(); });
     btnCerrarSesion.addEventListener('click', cerrarSesion);
@@ -72,20 +83,18 @@ async function procesarAutenticacion() {
         if(!r.ok) throw new Error();
         const res = await r.json();
         if(res.valido === "SI") {
-            permisosUsuario         = res.permisos         || [];
-            rolUsuarioActivo        = res.rol              || "EMPLEADO";
-            listaSubordinados       = res.subordinados     || [];
-            historicoPermisosEquipo = res.historicoEquipo  || [];
-            fechasDisfrute          = res.fechasDisfrute   || [];
-
-            const nombre = res.nombre || "Servidor Público";
-            lblNombreUsuario.innerText = nombre;
-            lblCedulaUsuario.innerText = cedula;
-            avatarUsuario.innerText = nombre.charAt(0).toUpperCase();
-            mostrarFlex(headerUsuario);
+            cedulaPendienteOTP = cedula;
+            // Mostrar pantalla OTP
+            const correo = res.correo || '';
+            if(correo) {
+                const partes = correo.split('@');
+                const oculto = partes[0].substring(0,3) + '***@' + partes[1];
+                lblCorreoOTP.innerText = oculto;
+            }
             ocultarEl(seccionLogin);
-            mostrarEl(seccionContenidoPortal);
-            evaluarRolYActivarVista();
+            mostrarEl(seccionOTP);
+            // Enfocar primer campo OTP
+            document.getElementById('otp1')?.focus();
         } else {
             lblErrorLogin.innerText = "⚠️ Funcionario no habilitado o no encontrado en la base de datos.";
             mostrarEl(lblErrorLogin);
@@ -97,6 +106,128 @@ async function procesarAutenticacion() {
         ocultarEl(spinnerLoading);
         txtBtnValidar.innerText = "Verificar";
         btnValidarCedula.disabled = false;
+    }
+}
+
+// ==========================================
+// OTP — SETUP Y VALIDACIÓN
+// ==========================================
+function setupOTP() {
+    // Navegación automática entre campos
+    ['otp1','otp2','otp3','otp4'].forEach((id, idx, arr) => {
+        const el = document.getElementById(id);
+        if(!el) return;
+        el.addEventListener('input', () => {
+            el.value = el.value.replace(/\D/g,'').slice(-1);
+            if(el.value && idx < arr.length - 1) {
+                document.getElementById(arr[idx+1])?.focus();
+            }
+            actualizarBotonOTP();
+        });
+        el.addEventListener('keydown', e => {
+            if(e.key === 'Backspace' && !el.value && idx > 0) {
+                document.getElementById(arr[idx-1])?.focus();
+            }
+        });
+    });
+
+    btnValidarOTP.addEventListener('click', procesarValidacionOTP);
+
+    btnVolverLogin.addEventListener('click', () => {
+        ocultarEl(seccionOTP);
+        mostrarEl(seccionLogin);
+        limpiarCamposOTP();
+        cedulaPendienteOTP = "";
+    });
+}
+
+function actualizarBotonOTP() {
+    const codigo = obtenerCodigoOTP();
+    btnValidarOTP.disabled = codigo.length < 4;
+}
+
+function obtenerCodigoOTP() {
+    return ['otp1','otp2','otp3','otp4']
+        .map(id => document.getElementById(id)?.value || '')
+        .join('');
+}
+
+function limpiarCamposOTP() {
+    ['otp1','otp2','otp3','otp4'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.value = '';
+    });
+    ocultarEl(lblErrorOTP);
+    btnValidarOTP.disabled = true;
+}
+
+async function procesarValidacionOTP() {
+    const codigo = obtenerCodigoOTP();
+    if(codigo.length < 4) return;
+
+    btnValidarOTP.disabled = true;
+    mostrarEl(spinnerOTP);
+    txtBtnOTP.innerText = "Verificando...";
+    ocultarEl(lblErrorOTP);
+
+    try {
+        const r = await fetch(URL_FLOW_VALIDAR_OTP, {
+            method: 'POST', mode: 'cors',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ cedula: cedulaPendienteOTP, codigo })
+        });
+        if(!r.ok) throw new Error();
+        const res = await r.json();
+
+        if(res.valido === "SI") {
+            // OTP correcto — ahora cargar los datos reales del usuario
+            limpiarCamposOTP();
+            ocultarEl(seccionOTP);
+            await cargarDatosUsuario(cedulaPendienteOTP);
+        } else {
+            lblErrorOTP.innerText = "⚠️ Código incorrecto o expirado. Verifica tu correo e intenta de nuevo.";
+            mostrarEl(lblErrorOTP);
+            limpiarCamposOTP();
+            document.getElementById('otp1')?.focus();
+            btnValidarOTP.disabled = true;
+        }
+    } catch(e) {
+        lblErrorOTP.innerText = "⚠️ Error de conexión. Por favor intenta de nuevo.";
+        mostrarEl(lblErrorOTP);
+        btnValidarOTP.disabled = false;
+    } finally {
+        ocultarEl(spinnerOTP);
+        txtBtnOTP.innerText = "Verificar código";
+    }
+}
+
+async function cargarDatosUsuario(cedula) {
+    try {
+        const r = await fetch(URL_FLOW_CONSULTA, {
+            method: 'POST', mode: 'cors',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({cedula})
+        });
+        if(!r.ok) throw new Error();
+        const res = await r.json();
+
+        permisosUsuario         = res.permisos         || [];
+        rolUsuarioActivo        = res.rol              || "EMPLEADO";
+        listaSubordinados       = res.subordinados     || [];
+        historicoPermisosEquipo = res.historicoEquipo  || [];
+        fechasDisfrute          = res.fechasDisfrute   || [];
+
+        const nombre = res.nombre || "Servidor Público";
+        lblNombreUsuario.innerText = nombre;
+        lblCedulaUsuario.innerText = cedula;
+        avatarUsuario.innerText = nombre.charAt(0).toUpperCase();
+        mostrarFlex(headerUsuario);
+        mostrarEl(seccionContenidoPortal);
+        evaluarRolYActivarVista();
+    } catch(e) {
+        mostrarEl(seccionLogin);
+        lblErrorLogin.innerText = "⚠️ Error al cargar los datos. Por favor intenta de nuevo.";
+        mostrarEl(lblErrorLogin);
     }
 }
 
@@ -779,6 +910,8 @@ function cerrarSesion() {
     tabHistorial.className=TAB_INACTIVO;
     ocultarEl(headerUsuario); ocultarEl(seccionContenidoPortal);
     ocultarEl(seccionHistorial); ocultarEl(seccionDashboardEquipo); ocultarEl(seccionAnaliticaTH);
+    ocultarEl(seccionOTP);
+    cedulaPendienteOTP = "";
     mostrarEl(gridBeneficios); mostrarEl(seccionLogin);
 }
 
