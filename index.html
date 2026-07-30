@@ -181,7 +181,16 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         .spinner { animation: spin 1s linear infinite; }
 
-        /* Scrollbar */
+        /* Animaciones pantalla de carga */
+        @keyframes pulsoLogo {
+            0%, 100% { transform: scale(1); box-shadow: 0 4px 16px rgba(253,218,47,0.4); }
+            50% { transform: scale(1.08); box-shadow: 0 8px 24px rgba(253,218,47,0.6); }
+        }
+        @keyframes barraProgreso {
+            0% { width: 0%; margin-left: 0%; }
+            50% { width: 70%; margin-left: 15%; }
+            100% { width: 0%; margin-left: 100%; }
+        }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f4f4f4; }
         ::-webkit-scrollbar-thumb { background: #c0c0c0; border-radius: 3px; }
@@ -343,6 +352,23 @@
                     style="color:#6a6a6a">
                 ← Volver e ingresar otra cédula
             </button>
+        </div>
+    </div>
+
+    <!-- PANTALLA DE CARGA -->
+    <div id="seccionCargando" style="display:none" class="max-w-md mx-auto my-12 text-center">
+        <div style="padding:3rem">
+            <!-- Logo animado -->
+            <div style="width:72px;height:72px;border-radius:50%;background:#fdda2f;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;animation:pulsoLogo 1.5s ease-in-out infinite">
+                <img src="https://cdn.jsdelivr.net/gh/AgenciaAPP/PaginaWebComunicaciones@main/logoagenciaappfull.svg"
+                     alt="APP" style="width:44px;filter:brightness(0)" onerror="this.style.display='none'">
+            </div>
+            <!-- Barra de progreso animada -->
+            <div style="background:#e0e0e0;border-radius:30px;height:4px;overflow:hidden;margin-bottom:1.5rem">
+                <div style="height:100%;background:linear-gradient(90deg,#fdda2f,#00a6b8);border-radius:30px;animation:barraProgreso 1.2s ease-in-out infinite"></div>
+            </div>
+            <p class="font-heading font-bold text-sm" style="color:#222222">Cargando tu espacio de trabajo</p>
+            <p class="text-xs mt-1" style="color:#6a6a6a">Estamos preparando tus beneficios disponibles...</p>
         </div>
     </div>
 
