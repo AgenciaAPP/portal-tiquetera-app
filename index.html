@@ -12,13 +12,13 @@
         h1, h2, h3, h4, h5, h6, .font-heading { font-family: 'Montserrat', sans-serif; }
 
         :root {
-            --app-amarillo:  #ffd500;
+            --app-amarillo:  #fdda2f;
             --app-gris:      #6a6a6a;
-            --app-azul:      #1878ba;
+            --app-azul:      #00a6b8;
             --app-terracota: #cb6c59;
             --app-negro:     #222222;
             --app-fondo:     #f4f4f4;
-            --app-texto:     #333333;
+            --app-texto:     #444444;
         }
 
         body {
@@ -27,15 +27,15 @@
                 linear-gradient(rgba(24,120,186,0.04) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(24,120,186,0.04) 1px, transparent 1px);
             background-size: 32px 32px;
-            color: #333333;
+            color: #444444;
         }
 
         /* Strip amarillo */
-        .strip-amarillo { background: #ffd500; height: 5px; width: 100%; }
+        .strip-amarillo { background: #fdda2f; height: 5px; width: 100%; }
 
         /* Tabs */
         .tab-activo {
-            border-bottom: 3px solid #ffd500;
+            border-bottom: 3px solid #fdda2f;
             color: #222222;
             font-weight: 700;
             background: transparent;
@@ -51,7 +51,7 @@
 
         /* Botón primario */
         .btn-app {
-            background: #ffd500;
+            background: #fdda2f;
             color: #222222;
             border-radius: 30px;
             font-family: 'Montserrat', sans-serif;
@@ -96,7 +96,7 @@
         .card-beneficio:hover {
             box-shadow: 0 8px 24px rgba(0,0,0,0.11);
             transform: translateY(-2px);
-            border-left: 4px solid #ffd500;
+            border-left: 4px solid #fdda2f;
         }
         .card-beneficio.bloqueada {
             opacity: 0.65;
@@ -106,8 +106,8 @@
         .card-beneficio.bloqueada:hover { transform: none; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 
         /* KPI borders */
-        .kpi-azul     { border-top: 4px solid #1878ba; }
-        .kpi-amarillo { border-top: 4px solid #ffd500; }
+        .kpi-azul     { border-top: 4px solid #00a6b8; }
+        .kpi-amarillo { border-top: 4px solid #fdda2f; }
         .kpi-verde    { border-top: 4px solid #43A047; }
         .kpi-terra    { border-top: 4px solid #cb6c59; }
         .kpi-gris     { border-top: 4px solid #6a6a6a; }
@@ -118,11 +118,11 @@
             border-radius: 12px;
             transition: border 0.2s, box-shadow 0.2s;
             font-family: 'Nunito', sans-serif;
-            color: #333333;
+            color: #444444;
             background: white;
         }
         .input-app:focus {
-            border-color: #1878ba;
+            border-color: #00a6b8;
             outline: none;
             box-shadow: 0 0 0 3px rgba(24,120,186,0.12);
         }
@@ -138,7 +138,7 @@
             display: block;
             width: 4px;
             height: 20px;
-            background: #ffd500;
+            background: #fdda2f;
             border-radius: 2px;
             flex-shrink: 0;
         }
@@ -167,7 +167,7 @@
         @keyframes pulso { 0%,100%{opacity:1}50%{opacity:0.4} }
         .punto-aprobado  { background: #43A047; }
         .punto-rechazado { background: #cb6c59; }
-        .punto-pendiente { background: #ffd500; }
+        .punto-pendiente { background: #fdda2f; }
         .punto-estado {
             display: inline-block;
             width: 7px; height: 7px;
@@ -200,7 +200,7 @@
 
 <!-- HEADER -->
 <header style="background:#222222;box-shadow:0 4px 20px rgba(0,0,0,0.25)">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div class="flex items-center gap-4">
             <img src="https://cdn.jsdelivr.net/gh/AgenciaAPP/PaginaWebComunicaciones@main/logoagenciaappfull.svg"
                  alt="Agencia APP" class="h-11 brightness-0 invert"
@@ -217,11 +217,11 @@
             <div class="flex items-center gap-3">
                 <div id="avatarUsuario"
                      class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 font-heading"
-                     style="background:#ffd500;color:#222222;box-shadow:0 2px 8px rgba(255,213,0,0.4)">--</div>
+                     style="background:#fdda2f;color:#222222;box-shadow:0 2px 8px rgba(255,213,0,0.4)">--</div>
                 <div>
                     <div class="flex items-center gap-2 mb-0.5">
                         <span class="text-[10px] font-bold uppercase tracking-wider leading-none font-heading"
-                              style="color:#ffd500">Servidor Público Activo</span>
+                              style="color:#fdda2f">Servidor Público Activo</span>
                         <span class="relative flex h-2 w-2">
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
                                   style="background:#43A047"></span>
@@ -239,7 +239,7 @@
             <button type="button" id="btnCerrarSesion"
                     class="p-2 rounded-xl transition-all ml-2"
                     style="color:rgba(255,255,255,0.3)"
-                    onmouseover="this.style.color='#ffd500';this.style.background='rgba(255,213,0,0.1)'"
+                    onmouseover="this.style.color='#fdda2f';this.style.background='rgba(255,213,0,0.1)'"
                     onmouseout="this.style.color='rgba(255,255,255,0.3)';this.style.background='transparent'"
                     title="Cerrar Sesión">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
@@ -251,15 +251,15 @@
         </div>
     </div>
 </header>
-<div style="height:3px;background:linear-gradient(90deg,#1878ba 0%,#ffd500 60%,#cb6c59 100%)"></div>
+<div style="height:3px;background:linear-gradient(90deg,#00a6b8 0%,#fdda2f 60%,#cb6c59 100%)"></div>
 
-<main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+<main class="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
 
     <!-- LOGIN -->
     <div id="seccionLogin" class="max-w-md mx-auto my-12">
-        <div class="card-app login-bg p-8 text-center" style="border-top:5px solid #ffd500">
+        <div class="card-app login-bg p-8 text-center" style="border-top:5px solid #fdda2f">
             <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
-                 style="background:#ffd500;box-shadow:0 4px 16px rgba(255,213,0,0.4)">
+                 style="background:#fdda2f;box-shadow:0 4px 16px rgba(255,213,0,0.4)">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
                      stroke="#222222" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -267,7 +267,7 @@
                 </svg>
             </div>
             <h2 class="font-heading text-xl font-bold mb-2" style="color:#222222">Validación de Funcionario</h2>
-            <div style="width:48px;height:4px;background:#ffd500;border-radius:2px;margin:0 auto 16px"></div>
+            <div style="width:48px;height:4px;background:#fdda2f;border-radius:2px;margin:0 auto 16px"></div>
             <p class="text-sm mb-6" style="color:#6a6a6a">Ingresa tu número de documento para verificar tu estado y cargar tus beneficios disponibles.</p>
             <div class="space-y-4">
                 <style>
@@ -338,7 +338,7 @@
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div class="card-app p-5 kpi-azul">
                     <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#6a6a6a">Usados este año</span>
-                    <span id="kpiHistUsados" class="text-4xl font-bold block font-heading" style="color:#1878ba">0</span>
+                    <span id="kpiHistUsados" class="text-4xl font-bold block font-heading" style="color:#00a6b8">0</span>
                     <span class="text-[10px] mt-1 block font-medium" style="color:#6a6a6a">de 15 disponibles</span>
                 </div>
                 <div class="card-app p-5 kpi-verde">
@@ -359,14 +359,14 @@
                     <div class="seccion-titulo">
                         <h3 class="text-sm font-bold font-heading" style="color:#222222">Cuota Anual de Beneficios</h3>
                     </div>
-                    <span id="kpiHistCuotaTexto" class="text-2xl font-bold font-heading" style="color:#1878ba">0/15</span>
+                    <span id="kpiHistCuotaTexto" class="text-2xl font-bold font-heading" style="color:#00a6b8">0/15</span>
                 </div>
                 <div style="background:#f0f0f0;border-radius:30px;height:14px;overflow:hidden">
-                    <div id="barraHistCuota" style="width:0%;height:100%;background:linear-gradient(90deg,#1878ba,#ffd500);border-radius:30px;transition:width 0.8s ease"></div>
+                    <div id="barraHistCuota" style="width:0%;height:100%;background:linear-gradient(90deg,#00a6b8,#fdda2f);border-radius:30px;transition:width 0.8s ease"></div>
                 </div>
                 <div class="flex justify-between mt-2">
                     <span class="text-[10px] font-medium" style="color:#6a6a6a">0</span>
-                    <span id="kpiHistDisponibles" class="text-[10px] font-bold" style="color:#1878ba">15 disponibles</span>
+                    <span id="kpiHistDisponibles" class="text-[10px] font-bold" style="color:#00a6b8">15 disponibles</span>
                     <span class="text-[10px] font-medium" style="color:#6a6a6a">15</span>
                 </div>
                 <p class="text-[10px] mt-2" style="color:#aaaaaa">Trabajo desde casa y Desconexión temprana no cuentan en este límite.</p>
@@ -379,7 +379,7 @@
                     <p class="text-xs mt-1 ml-4" style="color:#6a6a6a">Todas tus solicitudes radicadas — ordenadas por más reciente</p>
                 </div>
             <div class="px-6 py-3 border-b flex items-center gap-3" style="border-color:#f0f0f0;background:#fafafa">
-                    <span class="text-xs font-bold uppercase tracking-wider font-heading" style="color:#1878ba">🔎 Filtrar:</span>
+                    <span class="text-xs font-bold uppercase tracking-wider font-heading" style="color:#00a6b8">🔎 Filtrar:</span>
                     <select id="filtroHistTipo" onchange="renderHistorial()" class="input-app py-2 px-3 text-xs">
                         <option value="">Todos los tipos</option>
                         <option value="Tiquetera">🎟️ Tiquetera Emocional</option>
@@ -394,11 +394,11 @@
                 <div class="overflow-x-auto" style="max-height:420px;overflow-y:auto">
                     <table class="w-full text-left border-collapse">
                         <thead style="position:sticky;top:0;z-index:1"><tr style="background:#fafafa;border-bottom:2px solid #f0f0f0">
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Beneficio / Trámite</th>
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Tipo</th>
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Disfrute</th>
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Cuenta en cuota</th>
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Estado</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#00a6b8;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Beneficio / Trámite</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#00a6b8;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Tipo</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#00a6b8;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Disfrute</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#00a6b8;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Cuenta en cuota</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#00a6b8;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Estado</th>
                         </tr></thead>
                         <tbody id="tbodyHistorial"></tbody>
                     </table>
@@ -410,7 +410,7 @@
         <div id="seccionDashboardEquipo" style="display:none" class="space-y-6">
             <div class="card-app px-6 py-4">
                 <div class="flex flex-wrap items-center gap-3">
-                    <span class="text-xs font-bold uppercase tracking-wider font-heading" style="color:#1878ba">🔎 Filtrar:</span>
+                    <span class="text-xs font-bold uppercase tracking-wider font-heading" style="color:#00a6b8">🔎 Filtrar:</span>
                     <input id="filtroEquipoBusqueda" type="text" placeholder="Nombre o cédula..."
                            oninput="aplicarFiltrosEquipo()" class="input-app py-2 px-3 text-xs min-w-[150px]">
                     <select id="filtroEquipoEstado" onchange="aplicarFiltrosEquipo()" class="input-app py-2 px-3 text-xs">
@@ -443,12 +443,12 @@
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                 <div class="card-app p-5 kpi-azul lg:col-span-2">
                     <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#6a6a6a">Colaboradores</span>
-                    <span id="kpiTotalEquipo" class="text-4xl font-bold block font-heading" style="color:#1878ba">0</span>
+                    <span id="kpiTotalEquipo" class="text-4xl font-bold block font-heading" style="color:#00a6b8">0</span>
                     <span class="text-[10px] mt-1 block" style="color:#6a6a6a">a tu cargo</span>
                 </div>
                 <div class="card-app p-5 kpi-gris lg:col-span-2">
                     <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#6a6a6a">Solicitudes</span>
-                    <span id="kpiTotalHistoricoEquipo" class="text-4xl font-bold block font-heading" style="color:#333333">0</span>
+                    <span id="kpiTotalHistoricoEquipo" class="text-4xl font-bold block font-heading" style="color:#444444">0</span>
                     <span class="text-[10px] mt-1 block" style="color:#6a6a6a">en el período</span>
                 </div>
                 <div class="card-app p-5 kpi-verde">
@@ -467,13 +467,13 @@
                 </div>
                 <div class="card-app p-5 kpi-azul">
                     <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#6a6a6a">Tasa de Aprobación</span>
-                    <span id="kpiTasaAprobacion" class="text-3xl font-bold block font-heading" style="color:#1878ba">—</span>
+                    <span id="kpiTasaAprobacion" class="text-3xl font-bold block font-heading" style="color:#00a6b8">—</span>
                 </div>
                 <div class="card-app px-5 py-5 flex items-center gap-3"
                      style="background:linear-gradient(135deg,#222222,#6a6a6a)">
                     <span class="text-2xl">🏆</span>
                     <div>
-                        <span class="text-[10px] font-bold uppercase tracking-wider block font-heading" style="color:#ffd500">Más solicitado</span>
+                        <span class="text-[10px] font-bold uppercase tracking-wider block font-heading" style="color:#fdda2f">Más solicitado</span>
                         <span id="kpiTopTramiteEquipo" class="text-xs font-bold block mt-0.5 leading-snug text-white font-heading">—</span>
                     </div>
                 </div>
@@ -510,12 +510,12 @@
                 <div class="overflow-x-auto" style="max-height:420px;overflow-y:auto">
                     <table class="w-full text-left border-collapse">
                         <thead style="position:sticky;top:0;z-index:1"><tr style="background:#fafafa;border-bottom:2px solid #f0f0f0">
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Servidor</th>
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Beneficio / Trámite</th>
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Tipo</th>
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Radicado</th>
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Disfrute</th>
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Estado</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#00a6b8;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Servidor</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#00a6b8;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Beneficio / Trámite</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#00a6b8;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Tipo</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#00a6b8;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Radicado</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#00a6b8;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Disfrute</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#00a6b8;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Estado</th>
                         </tr></thead>
                         <tbody id="tbodyHistoricoEquipo"></tbody>
                     </table>
@@ -528,17 +528,17 @@
             <div class="rounded-2xl px-6 py-6 text-white overflow-hidden relative"
                  style="background:linear-gradient(135deg,#222222 0%,#6a6a6a 100%);box-shadow:0 4px 20px rgba(0,0,0,0.2)">
                 <div class="absolute top-0 right-0 w-48 h-48 rounded-full opacity-15"
-                     style="background:#ffd500;transform:translate(24px,-24px)"></div>
+                     style="background:#fdda2f;transform:translate(24px,-24px)"></div>
                 <div class="absolute bottom-0 left-0 w-28 h-28 rounded-full opacity-10"
-                     style="background:#1878ba;transform:translate(-12px,12px)"></div>
+                     style="background:#00a6b8;transform:translate(-12px,12px)"></div>
                 <h2 class="text-lg font-bold mb-0.5 font-heading relative z-10">📊 Centro de Gestión — Talento Humano</h2>
                 <p class="text-xs relative z-10" style="color:rgba(255,255,255,0.5)">Panel ejecutivo de trazabilidad institucional · Agencia APP</p>
                 <div class="mt-3 inline-block px-3 py-1 rounded-full text-xs font-bold font-heading relative z-10"
-                     style="background:#ffd500;color:#222222">Acceso restringido — Talento Humano</div>
+                     style="background:#fdda2f;color:#222222">Acceso restringido — Talento Humano</div>
             </div>
             <div class="card-app px-6 py-4">
                 <div class="flex flex-wrap items-center gap-3">
-                    <span class="text-xs font-bold uppercase tracking-wider font-heading" style="color:#1878ba">🔎 Filtrar:</span>
+                    <span class="text-xs font-bold uppercase tracking-wider font-heading" style="color:#00a6b8">🔎 Filtrar:</span>
                     <input id="filtroTHBusqueda" type="text" placeholder="Nombre o cédula..."
                            oninput="aplicarFiltrosTH()" class="input-app py-2 px-3 text-xs min-w-[160px]">
                     <select id="filtroTHEstado" onchange="aplicarFiltrosTH()" class="input-app py-2 px-3 text-xs">
@@ -571,12 +571,12 @@
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div class="card-app p-5 kpi-gris">
                     <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#6a6a6a">Servidores</span>
-                    <span id="kpiThTotalServidores" class="text-4xl font-bold block font-heading" style="color:#333333">0</span>
+                    <span id="kpiThTotalServidores" class="text-4xl font-bold block font-heading" style="color:#444444">0</span>
                     <span class="text-[10px] mt-1 block" style="color:#6a6a6a">funcionarios activos</span>
                 </div>
                 <div class="card-app p-5 kpi-azul">
                     <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#6a6a6a">Con Actividad</span>
-                    <span id="kpiThServsActivos" class="text-4xl font-bold block font-heading" style="color:#1878ba">0</span>
+                    <span id="kpiThServsActivos" class="text-4xl font-bold block font-heading" style="color:#00a6b8">0</span>
                     <span class="text-[10px] mt-1 block" style="color:#6a6a6a">en el período</span>
                 </div>
                 <div class="card-app p-5 kpi-amarillo">
@@ -586,7 +586,7 @@
                 </div>
                 <div class="card-app p-5 kpi-azul">
                     <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#6a6a6a">Tasa Aprobación</span>
-                    <span id="kpiThTasa" class="text-4xl font-bold block font-heading" style="color:#1878ba">—</span>
+                    <span id="kpiThTasa" class="text-4xl font-bold block font-heading" style="color:#00a6b8">—</span>
                     <span class="text-[10px] mt-1 block" style="color:#6a6a6a">del período</span>
                 </div>
             </div>
@@ -595,7 +595,7 @@
                     <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#2e7d32">✔ Aprobados</span>
                     <span id="kpiThAprobados" class="text-3xl font-bold block font-heading" style="color:#43A047">0</span>
                 </div>
-                <div class="card-app p-5" style="background:#fffbea;border-left:4px solid #ffd500">
+                <div class="card-app p-5" style="background:#fffbea;border-left:4px solid #fdda2f">
                     <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading" style="color:#b7920a">⏳ Pendientes</span>
                     <span id="kpiThPendientes" class="text-3xl font-bold block font-heading" style="color:#b7920a">0</span>
                 </div>
@@ -605,7 +605,7 @@
                 </div>
             </div>
             <div class="rounded-2xl px-6 py-4 flex items-center gap-4"
-                 style="background:#fffbea;border:1px solid #ffd500">
+                 style="background:#fffbea;border:1px solid #fdda2f">
                 <span class="text-3xl">🏆</span>
                 <div>
                     <span class="text-[10px] font-bold uppercase tracking-wider block font-heading" style="color:#b7920a">Beneficio más solicitado en el período</span>
@@ -644,11 +644,11 @@
                 <div class="overflow-x-auto" style="max-height:420px;overflow-y:auto">
                     <table class="w-full text-left border-collapse">
                         <thead style="position:sticky;top:0;z-index:1"><tr style="background:#fafafa;border-bottom:2px solid #f0f0f0">
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Servidor</th>
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Beneficio / Trámite</th>
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Tipo</th>
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Disfrute</th>
-                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#1878ba;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Estado</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#00a6b8;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Servidor</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#00a6b8;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Beneficio / Trámite</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#00a6b8;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Tipo</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#00a6b8;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Fecha Disfrute</th>
+                            <th style="padding:12px 16px;font-size:10px;font-weight:700;color:#00a6b8;text-transform:uppercase;letter-spacing:0.05em;font-family:'Montserrat',sans-serif">Estado</th>
                         </tr></thead>
                         <tbody id="tbodyHistoricoTH"></tbody>
                     </table>
@@ -660,8 +660,8 @@
 
 <!-- Footer -->
 <footer class="mt-16" style="border-top:1px solid #e0e0e0;background:white">
-    <div style="height:4px;background:linear-gradient(90deg,#1878ba 0%,#ffd500 60%,#cb6c59 100%)"></div>
-    <div class="max-w-7xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+    <div style="height:4px;background:linear-gradient(90deg,#00a6b8 0%,#fdda2f 60%,#cb6c59 100%)"></div>
+    <div class="max-w-6xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div>
             <p class="font-heading font-bold text-xs" style="color:#222222">
                 Agencia para la Gestión del Paisaje, el Patrimonio y las Alianzas Público Privadas
@@ -680,7 +680,7 @@
 <div id="modalBeneficio" style="display:none;background:rgba(0,0,0,0.65)"
      class="fixed inset-0 backdrop-blur-sm items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col"
-         style="border-top:5px solid #ffd500;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
+         style="border-top:5px solid #fdda2f;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
         <div class="px-6 py-4 flex justify-between items-center"
              style="background:#fafafa;border-bottom:1px solid #f0f0f0">
             <div class="seccion-titulo">
@@ -694,7 +694,7 @@
         </div>
         <form id="formSolicitud" class="p-6 space-y-5 flex-1">
             <div class="rounded-xl p-4 text-sm"
-                 style="background:#f5f9ff;border:1px solid #c8dff4;color:#1878ba">
+                 style="background:#f5f9ff;border:1px solid #c8dff4;color:#00a6b8">
                 <p id="lblAnticipacion">⏰ Mínimo X días de anticipación.</p>
                 <p id="lblAlertaSoporte" style="display:none"
                    class="font-semibold mt-1" style="color:#b7920a">📎 Este beneficio requiere adjuntar soporte.</p>
@@ -710,7 +710,7 @@
                 </p>
                 <p id="lblAlertaSemana" style="display:none"
                    class="text-xs mt-2 font-semibold p-2 rounded-xl"
-                   style="background:#fffbea;border:1px solid #ffd500;color:#b7920a"></p>
+                   style="background:#fffbea;border:1px solid #fdda2f;color:#b7920a"></p>
             </div>
             <div id="wrapperHoraCita" style="display:none">
                 <label class="block text-xs font-bold uppercase tracking-wider mb-2 font-heading"
@@ -729,7 +729,7 @@
                        style="color:#222222">Documento de Soporte</label>
                 <div class="border-2 border-dashed rounded-xl p-4 text-center cursor-pointer relative transition-all"
                      style="border-color:#e0e0e0;background:#fafafa"
-                     onmouseover="this.style.borderColor='#ffd500';this.style.background='#fffbea'"
+                     onmouseover="this.style.borderColor='#fdda2f';this.style.background='#fffbea'"
                      onmouseout="this.style.borderColor='#e0e0e0';this.style.background='#fafafa'">
                     <input type="file" id="attSoportes" accept=".pdf, .png, .jpg, .jpeg"
                            class="absolute inset-0 opacity-0 cursor-pointer">
