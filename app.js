@@ -18,6 +18,7 @@ const URL_FLOW_VALIDAR_OTP = "https://54b407e9c34be36d9ed93dfaf5a04b.e5.environm
 
 // Respuesta completa guardada del primer flow
 let respuestaCompletaUsuario = null;
+let cedulaPendienteOTP = "";
 
 // Títulos excluidos del conteo anual de 15 y del límite semanal
 const EXCLUIDOS_LIMITES = ["Día para Trabajo desde casa", "Desconexión temprana"];
