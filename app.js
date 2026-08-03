@@ -238,6 +238,30 @@ function aplicarDatosUsuario(cedula, res) {
     }, 1200);
 }
 
+async function recargarDatosUsuario() {
+    const cedula = lblCedulaUsuario.innerText;
+    if(!cedula) return;
+    try {
+        const r = await fetch(URL_FLOW_CONSULTA, {
+            method:'POST', mode:'cors',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({cedula})
+        });
+        const texto = await r.text();
+        const res = JSON.parse(texto);
+        if(res.valido === "SI") {
+            permisosUsuario         = res.permisos         || [];
+            rolUsuarioActivo        = res.rol              || "EMPLEADO";
+            listaSubordinados       = res.subordinados     || [];
+            historicoPermisosEquipo = res.historicoEquipo  || [];
+            fechasDisfrute          = res.fechasDisfrute   || [];
+            renderGrid();
+        }
+    } catch(e) {
+        console.error('Error al recargar datos:', e);
+    }
+}
+
 function evaluarRolYActivarVista() {
     [tabTiquetera, tabAdministrativos, tabEquipo, tabAnaliticaTH].forEach(t => ocultarEl(t));
     ocultarEl(tabHistorial);
@@ -901,7 +925,7 @@ async function procesarEnvioSolicitud() {
         const resp=await fetch(URL_FLOW_REGISTRO,{method:'POST',mode:'cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({cedula,beneficio,fechaInicio:fecha,justificacion,nombreArchivo,contenidoBase64,regulacion:beneficioSeleccionado.hint})});
         if(!resp.ok) throw new Error();
         alert(`🎉 Tu solicitud para "${beneficio}" ha sido radicada con éxito.`);
-        cerrarPopup(); procesarAutenticacion();
+        cerrarPopup(); recargarDatosUsuario();
     } catch(e) {
         alert("⚠️ Hubo un problema al radicar tu solicitud. Por favor, reintenta.");
         btnEnviarSolicitud.disabled=false; btnEnviarSolicitud.innerText="Enviar Solicitud";
