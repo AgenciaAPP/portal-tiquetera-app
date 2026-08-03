@@ -146,7 +146,10 @@ function setupOTP() {
 
 function actualizarBotonOTP() {
     const codigo = obtenerCodigoOTP();
-    btnValidarOTP.disabled = codigo.length < 4;
+    const habilitado = codigo.length === 4;
+    btnValidarOTP.disabled = !habilitado;
+    btnValidarOTP.style.opacity = habilitado ? '1' : '0.5';
+    btnValidarOTP.style.cursor = habilitado ? 'pointer' : 'not-allowed';
 }
 
 function obtenerCodigoOTP() {
