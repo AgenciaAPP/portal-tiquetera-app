@@ -212,7 +212,7 @@
     <div class="max-w-6xl mx-auto px-6 py-4 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div class="flex items-center gap-4">
             <img src="https://cdn.jsdelivr.net/gh/AgenciaAPP/PaginaWebComunicaciones@main/logoagenciaappfull.svg"
-                 alt="Agencia APP" class="h-11 brightness-0 invert"
+                 alt="Agencia APP" style="height:44px;max-height:44px;width:auto;display:block;filter:brightness(0) invert(1)"
                  onerror="this.style.display='none'">
             <div style="border-left:1px solid rgba(255,255,255,0.15);padding-left:16px">
                 <h1 class="font-heading text-white text-sm font-bold leading-tight tracking-wide">Portal de Solicitudes</h1>
@@ -220,9 +220,8 @@
             </div>
         </div>
 
-        <div id="headerUsuario" style="display:none"
-             class="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-start"
-             style="background:rgba(255,213,0,0.1);border:1px solid rgba(255,213,0,0.2);border-radius:16px;padding:10px 16px">
+        <div id="headerUsuario" style="display:none;background:rgba(255,213,0,0.1);border:1px solid rgba(255,213,0,0.2);border-radius:16px;padding:10px 16px"
+             class="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-start">
             <div class="flex items-center gap-3">
                 <div id="avatarUsuario"
                      class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 font-heading"
@@ -362,7 +361,7 @@
             <!-- Logo animado -->
             <div style="width:72px;height:72px;border-radius:50%;background:#fdda2f;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;animation:pulsoLogo 1.5s ease-in-out infinite">
                 <img src="https://cdn.jsdelivr.net/gh/AgenciaAPP/PaginaWebComunicaciones@main/logoagenciaappfull.svg"
-                     alt="APP" style="width:44px;filter:brightness(0)" onerror="this.style.display='none'">
+                     alt="APP" style="width:44px;height:44px;object-fit:contain;filter:brightness(0)" onerror="this.style.display='none'">
             </div>
             <!-- Barra de progreso animada -->
             <div style="background:#e0e0e0;border-radius:30px;height:4px;overflow:hidden;margin-bottom:1.5rem">
@@ -748,7 +747,7 @@
             </p>
         </div>
         <img src="https://cdn.jsdelivr.net/gh/AgenciaAPP/PaginaWebComunicaciones@main/logoagenciaappfull.svg"
-             alt="Agencia APP" class="h-8 opacity-40"
+             alt="Agencia APP" style="height:32px;max-height:32px;width:auto;display:block;opacity:0.4"
              onerror="this.style.display='none'">
     </div>
 </footer>
