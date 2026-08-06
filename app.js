@@ -888,13 +888,26 @@ function esCitaMedica(b) {
     return b.titulo.toLowerCase().includes('cita') && b.titulo.toLowerCase().includes('medic');
 }
 
+function esDocencia(b) {
+    return b.titulo === "Permiso para ejercer la docencia universitaria";
+}
+
 function abrirPopup(b) {
     beneficioSeleccionado = b;
     document.getElementById('lblTituloPopup').innerText = b.titulo;
     document.getElementById('lblAnticipacion').innerHTML = `⏰ <strong>Mínimo ${b.diasAntelacion} días de anticipación.</strong><br><span style="display:block;margin-top:8px;font-size:12px;color:#475569;font-weight:400;line-height:1.5">${b.hint}</span>`;
-    document.getElementById('lblFechaDisfrute').innerText = "Fecha de la Solicitud";
+
+    // Etiqueta de fecha según tipo
+    document.getElementById('lblFechaDisfrute').innerText = esDocencia(b) ? "Fecha de Inicio de Clases" : "Fecha de la Solicitud";
+
+    // Campo hora cita médica
     const wrapHora = document.getElementById('wrapperHoraCita');
     if(esCitaMedica(b)) { mostrarEl(wrapHora); } else { ocultarEl(wrapHora); }
+
+    // Campo fecha fin docencia
+    const wrapFechaFin = document.getElementById('wrapperFechaFin');
+    if(esDocencia(b)) { mostrarEl(wrapFechaFin); } else { ocultarEl(wrapFechaFin); }
+
     const ws=document.getElementById('wrapperSoportes'), la=document.getElementById('lblAlertaSoporte');
     if(b.requiereAdjunto){mostrarEl(ws);mostrarEl(la);}else{ocultarEl(ws);ocultarEl(la);}
     ocultarEl(document.getElementById('lblAlertaSemana'));
@@ -913,6 +926,10 @@ async function procesarEnvioSolicitud() {
     if(esCitaMedica(beneficioSeleccionado)) {
         const hora = document.getElementById('inputHoraCita')?.value;
         if(hora) justificacion = `Hora de la cita: ${hora}\n${justificacion}`;
+    }
+    if(esDocencia(beneficioSeleccionado)) {
+        const fechaFin = document.getElementById('dtFechaFin')?.value;
+        if(fechaFin) justificacion = `Período de clases: ${fecha} al ${fechaFin}\n${justificacion}`;
     }
     btnEnviarSolicitud.disabled=true; btnEnviarSolicitud.innerText="Enviando Radicado...";
     let nombreArchivo="Sin_Soporte.txt", contenidoBase64="VGV4dG8gZHUgbXkgcGFyYSBldml0YXIgZmFsbG9z";
@@ -956,6 +973,7 @@ function setupFormValidation() {
     });
     [dtFechaInicio, txtJustificacion].forEach(el => el.addEventListener('input', validar));
     document.getElementById('inputHoraCita')?.addEventListener('input', validar);
+    document.getElementById('dtFechaFin')?.addEventListener('input', validar);
 
     function validar() {
         if(!beneficioSeleccionado) return;
@@ -992,6 +1010,10 @@ function setupFormValidation() {
             ? (document.getElementById('inputHoraCita')?.value?.trim().length > 0)
             : true;
 
-        btnEnviarSolicitud.disabled = !(jv && fv && reglaOk && horaVal && (!beneficioSeleccionado.requiereAdjunto || attSoportes.files.length > 0));
+        const fechaFinVal = esDocencia(beneficioSeleccionado)
+            ? (document.getElementById('dtFechaFin')?.value?.trim().length > 0)
+            : true;
+
+        btnEnviarSolicitud.disabled = !(jv && fv && reglaOk && horaVal && fechaFinVal && (!beneficioSeleccionado.requiereAdjunto || attSoportes.files.length > 0));
     }
 }
