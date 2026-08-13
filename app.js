@@ -1027,3 +1027,4 @@ function setupFormValidation() {
         btnEnviarSolicitud.disabled = !(jv && fv && reglaOk && horaVal && fechaFinVal && (!beneficioSeleccionado.requiereAdjunto || attSoportes.files.length > 0));
     }
 }
+window._debug = () => fechasDisfrute.map(r => ({ titulo: r.PermisoSolicitado, estado: r.Estado, estadoProcessed: getEstado(r) }));
