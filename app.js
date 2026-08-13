@@ -245,7 +245,7 @@ async function recargarDatosUsuario() {
         const r = await fetch(URL_FLOW_CONSULTA, {
             method:'POST', mode:'cors',
             headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({cedula})
+            body: JSON.stringify({cedula, soloRecarga: true})
         });
         const texto = await r.text();
         const res = JSON.parse(texto);
