@@ -944,7 +944,19 @@ async function procesarEnvioSolicitud() {
         const resp=await fetch(URL_FLOW_REGISTRO,{method:'POST',mode:'cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({cedula,beneficio,fechaInicio:fecha,justificacion,nombreArchivo,contenidoBase64,regulacion:beneficioSeleccionado.hint})});
         if(!resp.ok) throw new Error();
         alert(`🎉 Tu solicitud para "${beneficio}" ha sido radicada con éxito.`);
-        cerrarPopup(); recargarDatosUsuario();
+        const beneficioRadicado = beneficioSeleccionado;
+        const fechaRadicada = dtFechaInicio.value;
+        cerrarPopup();
+        // Agregar registro en memoria antes de renderizar
+        fechasDisfrute.push({
+            PermisoSolicitado: beneficioRadicado.titulo,
+            FechaSolicitud: fechaRadicada,
+            Estado: 'Solicitado',
+            Created: new Date().toISOString(),
+            Title: lblCedulaUsuario.innerText
+        });
+        renderGrid();
+        if(tipoActual === 'Historial') renderHistorial();
     } catch(e) {
         alert("⚠️ Hubo un problema al radicar tu solicitud. Por favor, reintenta.");
         btnEnviarSolicitud.disabled=false; btnEnviarSolicitud.innerText="Enviar Solicitud";
