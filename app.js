@@ -616,7 +616,17 @@ function crearCard(b, totalAnual) {
     const regla = permisosUsuario.find(p => p.Titulo === b.titulo);
     let disponible = true, btn = "Solicitar", badge2 = "";
 
-    if(b.tipo === "Tiquetera" && totalAnual >= 15 && !EXCLUIDOS_LIMITES.includes(b.titulo)) {
+    // Verificar si hay una solicitud en proceso (estado Solicitado)
+    const enProceso = fechasDisfrute.some(r =>
+        r.PermisoSolicitado === b.titulo &&
+        getEstado(r).toLowerCase() === 'solicitado'
+    );
+    if(enProceso) {
+        disponible = false;
+        btn = "⏳ En proceso de aprobación";
+    }
+
+    if(!enProceso && b.tipo === "Tiquetera" && totalAnual >= 15 && !EXCLUIDOS_LIMITES.includes(b.titulo)) {
         disponible = false; btn = "Límite anual alcanzado (Máx 15)";
     }
 
