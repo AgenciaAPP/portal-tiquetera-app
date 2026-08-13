@@ -238,28 +238,20 @@ function aplicarDatosUsuario(cedula, res) {
     }, 1200);
 }
 
-async function recargarDatosUsuario() {
-    const cedula = lblCedulaUsuario.innerText;
-    if(!cedula) return;
-    try {
-        const r = await fetch(URL_FLOW_CONSULTA, {
-            method:'POST', mode:'cors',
-            headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({cedula, soloRecarga: true})
+function recargarDatosUsuario() {
+    // Agrega el registro recién solicitado a fechasDisfrute en memoria
+    // y re-renderiza sin llamar al flow
+    if(beneficioSeleccionado) {
+        fechasDisfrute.push({
+            PermisoSolicitado: beneficioSeleccionado.titulo,
+            FechaSolicitud: dtFechaInicio.value,
+            Estado: 'Solicitado',
+            Created: new Date().toISOString(),
+            Title: lblCedulaUsuario.innerText
         });
-        const texto = await r.text();
-        const res = JSON.parse(texto);
-        if(res.valido === "SI") {
-            permisosUsuario         = res.permisos         || [];
-            rolUsuarioActivo        = res.rol              || "EMPLEADO";
-            listaSubordinados       = res.subordinados     || [];
-            historicoPermisosEquipo = res.historicoEquipo  || [];
-            fechasDisfrute          = res.fechasDisfrute   || [];
-            renderGrid();
-        }
-    } catch(e) {
-        console.error('Error al recargar datos:', e);
     }
+    renderGrid();
+    if(tipoActual === 'Historial') renderHistorial();
 }
 
 function evaluarRolYActivarVista() {
